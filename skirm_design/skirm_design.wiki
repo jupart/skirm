@@ -1,0 +1,70 @@
+=== Skirm ===
+Turn-based tactical modern warfare simulator in ASCII, top down format, built
+with Rust.
+
+=== Overview ===
+Play loop will go like this:
+ * Choose four prebuilt characters with differing stats
+ * Equip them with gear with a fixed amount of money to spend
+ * Choose a map
+ * Turn based fight loop:
+    * Move
+    * Actions
+    * Left over move/action
+ * Damage gets you money that accumulates over matches
+
+=== Movement ===
+ * Walk - normal move that doesn't incur any accuracy penalties
+ * Run - move that incurs accuracy penalty
+ * Climb - slower move that requires the character put away anything in their
+   hands
+ * Jump
+
+=== Actions ===
+ * Attack
+    * Fallout/DF style of hit percentage/body part kind of attacks
+    * Auto attack (right click) should choose highest hit percentage part
+    * Hold
+    * Push/Pull
+ * Use special items:
+    * Throwables
+    * Shields
+    * Really random items
+ * Change gear
+
+=== Character ===
+The goal is to simulate health in a realistic way, tracking blood loss, pain
+level, shock, etc. Close to but maybe not quite the DF level of simulation: I
+think we can track bone and skin/muscle information to have fights that are
+"real enough".
+
+ * ASCII art for each attack quickly shows current status and damage dealt to
+   part, maybe with a cool animation for attacks
+ * Fixed number of "slots" per body part for wearables
+ * Current movement speed (fixed if walking, increases to some max while
+   running)
+ * Stats:
+     * STR - blood volume, resistance to shock, melee attack, push/pull/hold,
+       pain resistance
+     * DEX -
+
+=== Interface ===
+ * Designed to be keyboard- or mouse-driven
+ * Mouse select/command should be similar to War/Starcraft:
+    * Left click to select for info or action
+    * Right click for some autocommand like move-to or attack-with-held-item
+
+=== Gear ===
+ * Gear should be real-world stuff: guns, melee weapons, tools, armor, etc. Should
+   be defined via .json.
+ * Display gear images with `txtpic` or similar tool.
+
+=== Drawing ===
+ * Use SDL2 or `ggez` to draw fonts. Similar to COGMIND, use square font for play
+   area and regular sized monospace for interface.
+ * For multi-z-level maps, display similar to TWBT DF, with "fog" making each
+   lower level more and more hazy.
+ * Tile based, drawn on a grid
+ * Smooth movement between grid tiles, fixed location endpoints on grid
+
+=== Sounds ===

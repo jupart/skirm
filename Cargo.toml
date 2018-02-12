@@ -1,0 +1,6 @@
+[package]
+name = "skirm"
+version = "0.1.0"
+authors = ["jupart <justinwpartain1@gmail.com>"]
+
+[dependencies]
