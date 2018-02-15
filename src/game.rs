@@ -1,0 +1,184 @@
+use ggez::{timer, event, graphics, Context, GameResult};
+use ggez::event::{Axis, Keycode, Mod, MouseButton};
+use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Index};
+
+use std::collections::HashMap;
+use std::time::Duration;
+
+use asset_storage::AssetStorage;
+use components::*;
+use systems::*;
+use resources::{DeltaTime, PlayerInput};
+// use rendering::RenderType;
+use item::ItemFactory;
+use skirmer::SkirmerFactory;
+
+pub struct Game<'a, 'b> {
+    pub world: World,
+    pub player_count: usize,
+    pub player1_id: Index,
+    pub player2_id: Index,
+    pub player3_id: Index,
+    pub player4_id: Index,
+    pub dispatcher: Dispatcher<'a, 'b>,
+    pub has_focus: bool,
+    pub paused: bool,
+}
+
+impl<'a, 'b> Game<'a, 'b> {
+    pub fn new(ctx: &mut Context) -> GameResult<Game<'a, 'b>> {
+        let mut world = World::new();
+
+        let pc = 0;
+
+        register_components(&mut world);
+
+        let mut asset_storage = AssetStorage::new(ctx)?;
+        let mut item_factory = ItemFactory::new()?;
+        let skirmer_factory = SkirmerFactory::new();
+
+        asset_storage.load_images(ctx)?;
+        asset_storage.load_sounds(ctx)?;
+
+        let mut ent1_sounds = HashMap::new();
+        ent1_sounds.insert(SoundType::Move, ("sine", true));
+
+        // Create entities
+        let player1_id = skirmer_factory.create_skirmer(100.0, 0.0, &mut world);
+
+        // Add specs shared resources
+        world.add_resource::<AssetStorage>(asset_storage);
+        world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
+        world.add_resource(PlayerInput::new(player1_id));
+
+        // Dispatch systems
+        let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
+            .add(ActionSys, "action", &[])
+            .add(PlayerInputSys, "player_input", &[])
+            .add(PositionSys, "position", &[])
+            .add(SoundSys, "sound", &[])
+            .build();
+
+        Ok(Game {
+            world,
+            player_count: pc,
+            player1_id,
+            player2_id: 0,
+            player3_id: 0,
+            player4_id: 0,
+            dispatcher,
+            has_focus: true,
+            paused: false,
+        })
+    }
+}
+
+impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+        if self.has_focus && !self.paused {
+            let dt = &timer::get_delta(ctx);
+            self.world.write_resource::<DeltaTime>().delta = *dt;
+            self.dispatcher.dispatch(&self.world.res);
+            self.world.maintain();
+        }
+
+        Ok(())
+    }
+
+    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+        graphics::clear(ctx);
+        {
+            let mut rs = RenderSys::new(ctx);
+            rs.run_now(&self.world.res);
+        }
+        graphics::present(ctx);
+
+        timer::yield_now();
+        Ok(())
+    }
+
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, repeat: bool) {
+        let mut input = self.world.write_resource::<PlayerInput>();
+
+        if !repeat {
+            match keycode {
+                Keycode::Left | Keycode::A => input.left = true,
+                Keycode::Right | Keycode::D => input.right = true,
+                Keycode::Up | Keycode::W => input.up = true,
+                Keycode::Down | Keycode::S => input.down = true,
+                _ => (),
+            }
+        }
+    }
+
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, repeat: bool) {
+        let mut input = self.world.write_resource::<PlayerInput>();
+
+        if !repeat {
+            match keycode {
+                Keycode::Left | Keycode::A => input.left = false,
+                Keycode::Right | Keycode::D => input.right = false,
+                Keycode::Up | Keycode::W => input.up = false,
+                Keycode::Down | Keycode::S => input.down = false,
+                _ => (),
+            }
+        }
+    }
+
+    fn controller_axis_event(&mut self, _ctx: &mut Context, axis: Axis, value: i16, _instance_id: i32) {
+        let mut input = self.world.write_resource::<PlayerInput>();
+        let axis_val = 7500;
+
+        match axis {
+            Axis::LeftX => {
+                if value > axis_val {
+                    input.right = true;
+                } else {
+                    input.right = false;
+                }
+
+                if value < -axis_val {
+                    input.left = true;
+                } else {
+                    input.left = false;
+                }
+            }
+            Axis::LeftY => {
+                if value > axis_val {
+                    input.down = true;
+                } else {
+                    input.down = false;
+                }
+
+                if value < -axis_val {
+                    input.up = true;
+                } else {
+                    input.up = false;
+                }
+            }
+            _ => (),
+        }
+    }
+
+    fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) {
+        self.has_focus = has_focus;
+    }
+
+    fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
+        let mut input = self.world.write_resource::<PlayerInput>();
+        match button {
+            MouseButton::Left => input.move_to(x, y),
+            MouseButton::Right => (),
+            MouseButton::Middle => (),
+            _ => (),
+        }
+    }
+
+    // fn mouse_button_up_event(&mut self, _button: MouseButton, _x: i32, _y: i32) { ... }
+    // fn mouse_motion_event(&mut self, _state: MouseState, _x: i32, _y: i32, _xrel: i32, _yrel: i32) { ... }
+    // fn mouse_wheel_event(&mut self, _x: i32, _y: i32) { ... }
+    // fn controller_button_down_event(&mut self, _btn: Button, _instance_id: i32) { ... }
+    // fn controller_button_up_event(&mut self, _btn: Button, _instance_id: i32) { ... }
+    // fn quit_event(&mut self) -> bool { ... }
+    // fn resize_event(&mut self, _ctx: &mut Context, _width: u32, _height: u32) { ... }
+}

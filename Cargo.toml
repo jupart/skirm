@@ -4,3 +4,13 @@ version = "0.1.0"
 authors = ["jupart <justinwpartain1@gmail.com>"]
 
 [dependencies]
+specs = "0.10.0"
+specs-derive = "0.1.0"
+serde_yaml = "0.7.3"
+serde_derive = "1.0.27"
+serde = "1.0.27"
+
+[dependencies.ggez]
+# git = "https://github.com/ggez/ggez.git"
+path = "../ggez"
+features = ["cargo-resource-root"]
