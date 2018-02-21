@@ -9,6 +9,8 @@ specs-derive = "0.1.0"
 serde_yaml = "0.7.3"
 serde_derive = "1.0.27"
 serde = "1.0.27"
+pathfinding = "0.6.10"
+ascii = "0.8.6"
 
 [dependencies.ggez]
 # git = "https://github.com/ggez/ggez.git"

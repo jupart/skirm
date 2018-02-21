@@ -2,6 +2,8 @@ extern crate ggez;
 extern crate specs;
 extern crate serde;
 extern crate serde_yaml;
+extern crate ascii;
+extern crate pathfinding;
 
 #[macro_use]
 extern crate serde_derive;
@@ -20,6 +22,7 @@ mod resources;
 mod rendering;
 mod skirmer;
 mod item;
+mod skirmmap;
 
 use game::Game;
 

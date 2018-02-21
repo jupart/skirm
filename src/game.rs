@@ -12,6 +12,7 @@ use resources::{DeltaTime, PlayerInput};
 // use rendering::RenderType;
 use item::ItemFactory;
 use skirmer::SkirmerFactory;
+use skirmmap::SkirmMap;
 
 pub struct Game<'a, 'b> {
     pub world: World,
@@ -44,12 +45,13 @@ impl<'a, 'b> Game<'a, 'b> {
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
         // Create entities
-        let player1_id = skirmer_factory.create_skirmer(100.0, 0.0, &mut world);
+        let player1_id = skirmer_factory.create_skirmer(64.0, 14.0, &mut world);
 
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
         world.add_resource(PlayerInput::new(player1_id));
+        world.add_resource(SkirmMap::load("./resources/maps/test.skirm_map")?);
 
         // Dispatch systems
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
