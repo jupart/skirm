@@ -56,16 +56,12 @@ impl MoveToPoint {
     ) -> Result<MoveToPoint, ()> {
         match dijkstra(&current_pos, |p| p.neighbors(map), |p| *p == move_to) {
             Some(points) => {
-                println!("{:?}", points.0);
                 Ok(MoveToPoint {
                     move_time: Duration::new(0, 0),
                     point_stack: points.0,
                 })
             },
-            None => {
-                println!("Can't move to {:?}", move_to);
-                Err(())
-            },
+            None => Err(()),
         }
     }
 }

@@ -32,7 +32,7 @@ fn main() {
             .title("skirm")
         )
         .window_mode(conf::WindowMode::default()
-            .dimensions(640, 480)
+            .dimensions(250, 450)
         );
 
     let ctx = &mut cb.build().unwrap();
