@@ -5,7 +5,8 @@ use specs::{Entities, Fetch, FetchMut, System, ReadStorage, WriteStorage, Join};
 
 use asset_storage::AssetStorage;
 use components::*;
-use resources::{DeltaTime, PlayerInput};
+use resources::DeltaTime;
+use input::{PlayerInput, PendingCommand};
 use rendering::RenderType;
 use skirmmap::{TileType, SkirmMap, MapPoint};
 use skirmmap;
@@ -34,11 +35,13 @@ impl<'a> System<'a> for PlayerInputSys {
     fn run(&mut self, data: Self::SystemData) {
         let (entities, skirmmap, mut input, mut action_comp, position_comp) = data;
         for (e, a, p) in (&*entities, &mut action_comp, &position_comp).join() {
-            if input.id == e.id() {
-                if input.to_move {
-                    let pos = MapPoint::new(p.x as i32, p.y as i32);
-                    let to = MapPoint::new(input.move_x as i32, input.move_y as i32);
-
+            if input.id != e.id() || input.pending_command.is_none() || input.command_point.is_none() {
+                continue;
+            }
+            let pos = MapPoint::new(p.x as i32, p.y as i32);
+            let to = input.command_point.unwrap();
+            match input.pending_command.unwrap() {
+                PendingCommand::Move => {
                     match MoveToPoint::new(pos, to, &*skirmmap) {
                         Ok(move_to_point) => {
                             a.current_action = Action::MoveTo(move_to_point);
@@ -46,10 +49,14 @@ impl<'a> System<'a> for PlayerInputSys {
                         Err(()) => {
                             a.current_action = Action::Idle;
                         },
-                    };
-                    input.to_move = false;
+                    }
+                },
+                PendingCommand::Attack => {
+                    println!("Attack at {:?}", to);
                 }
             }
+            input.pending_command = None;
+            input.command_point = None;
         }
     }
 }
@@ -143,18 +150,33 @@ impl<'c> RenderSys<'c> {
         let glyph = graphics::Text::new(self.ctx, id, &assets.font).unwrap();
         graphics::draw(self.ctx, &glyph, point, 0.0).unwrap();
     }
+
+    fn draw_mode(&mut self, mode: PendingCommand, assets: &AssetStorage) {
+        let point = graphics::Point2::new(0.0, 0.0);
+        let word;
+        match mode {
+            PendingCommand::Move => {
+                word = graphics::Text::new(self.ctx, "Move", &assets.font).unwrap();
+            },
+            PendingCommand::Attack => {
+                word = graphics::Text::new(self.ctx, "Attack", &assets.font).unwrap();
+            },
+        }
+        graphics::draw(self.ctx, &word, point, 0.0).unwrap();
+    }
 }
 
 impl<'a, 'c> System<'a> for RenderSys<'c> {
     type SystemData = (
         Fetch<'a, AssetStorage>,
         Fetch<'a, SkirmMap>,
+        Fetch<'a, PlayerInput>,
         ReadStorage<'a, RenderComp>,
         ReadStorage<'a, PositionComp>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (assets, map, render_comp, position_comp) = data;
+        let (assets, map, input, render_comp, position_comp) = data;
 
         // Draw map
         for (ref point, ref tile) in &map.map {
@@ -176,6 +198,11 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
                     self.draw_glyph(id, (p.x, p.y), &assets);
                 }
             }
+        }
+
+        // Draw current command mode
+        if input.pending_command.is_some() {
+            self.draw_mode(input.pending_command.unwrap(), &assets);
         }
     }
 }

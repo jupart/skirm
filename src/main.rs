@@ -23,6 +23,7 @@ mod rendering;
 mod skirmer;
 mod item;
 mod skirmmap;
+mod input;
 
 use game::Game;
 

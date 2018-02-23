@@ -8,7 +8,8 @@ use std::time::Duration;
 use asset_storage::AssetStorage;
 use components::*;
 use systems::*;
-use resources::{DeltaTime, PlayerInput};
+use resources::DeltaTime;
+use input::{PlayerInput, PendingCommand};
 // use rendering::RenderType;
 use item::ItemFactory;
 use skirmer::SkirmerFactory;
@@ -102,65 +103,20 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, repeat: bool) {
         let mut input = self.world.write_resource::<PlayerInput>();
 
-        if !repeat {
-            match keycode {
-                Keycode::Left | Keycode::A => input.left = true,
-                Keycode::Right | Keycode::D => input.right = true,
-                Keycode::Up | Keycode::W => input.up = true,
-                Keycode::Down | Keycode::S => input.down = true,
-                _ => (),
-            }
+        if repeat {
+            return;
+        }
+
+        match keycode {
+            Keycode::A => input.set_pending_command(PendingCommand::Attack),
+            Keycode::M => input.set_pending_command(PendingCommand::Move),
+            _ => ()
         }
     }
 
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, repeat: bool) {
-        let mut input = self.world.write_resource::<PlayerInput>();
+    fn key_up_event(&mut self, _ctx: &mut Context, _keycode: Keycode, _keymod: Mod, _repeat: bool) { }
 
-        if !repeat {
-            match keycode {
-                Keycode::Left | Keycode::A => input.left = false,
-                Keycode::Right | Keycode::D => input.right = false,
-                Keycode::Up | Keycode::W => input.up = false,
-                Keycode::Down | Keycode::S => input.down = false,
-                _ => (),
-            }
-        }
-    }
-
-    fn controller_axis_event(&mut self, _ctx: &mut Context, axis: Axis, value: i16, _instance_id: i32) {
-        let mut input = self.world.write_resource::<PlayerInput>();
-        let axis_val = 7500;
-
-        match axis {
-            Axis::LeftX => {
-                if value > axis_val {
-                    input.right = true;
-                } else {
-                    input.right = false;
-                }
-
-                if value < -axis_val {
-                    input.left = true;
-                } else {
-                    input.left = false;
-                }
-            }
-            Axis::LeftY => {
-                if value > axis_val {
-                    input.down = true;
-                } else {
-                    input.down = false;
-                }
-
-                if value < -axis_val {
-                    input.up = true;
-                } else {
-                    input.up = false;
-                }
-            }
-            _ => (),
-        }
-    }
+    fn controller_axis_event(&mut self, _ctx: &mut Context, _axis: Axis, _value: i16, _instance_id: i32) { }
 
     fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) {
         self.has_focus = has_focus;
@@ -169,7 +125,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
         let mut input = self.world.write_resource::<PlayerInput>();
         match button {
-            MouseButton::Left => input.move_to(x, y),
+            MouseButton::Left => input.select_point(x, y),
             MouseButton::Right => (),
             MouseButton::Middle => (),
             _ => (),
