@@ -13,6 +13,5 @@ pathfinding = "0.6.10"
 ascii = "0.8.6"
 
 [dependencies.ggez]
-# git = "https://github.com/ggez/ggez.git"
-path = "../ggez"
+git = "https://github.com/ggez/ggez.git"
 features = ["cargo-resource-root"]
