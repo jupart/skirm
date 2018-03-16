@@ -12,7 +12,7 @@ use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 // use rendering::RenderType;
 use item::ItemFactory;
-use skirmer::SkirmerFactory;
+use skirmer::{SkirmerFactory, SkirmerType};
 use skirmmap::SkirmMap;
 
 pub struct Game<'a, 'b> {
@@ -36,7 +36,7 @@ impl<'a, 'b> Game<'a, 'b> {
         register_components(&mut world);
 
         let mut asset_storage = AssetStorage::new(ctx)?;
-        let mut item_factory = ItemFactory::new()?;
+        let item_factory = ItemFactory::new()?;
         let skirmer_factory = SkirmerFactory::new();
 
         asset_storage.load_images(ctx)?;
@@ -46,7 +46,15 @@ impl<'a, 'b> Game<'a, 'b> {
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
         // Create entities
-        let player1_id = skirmer_factory.create_skirmer(64.0, 14.0, &mut world);
+        let player1_id = skirmer_factory.create_skirmer(
+            64.0,
+            14.0,
+            SkirmerType::Fighter,
+            &item_factory,
+            &mut world,
+        );
+
+        skirmer_factory.create_skirmer(64.0, 40.0, SkirmerType::Fighter, &item_factory, &mut world);
 
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);

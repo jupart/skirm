@@ -5,9 +5,11 @@
   damage: 1
   accuracy: 10
   range: 10
+  sound: "gunshot.wav"
 ".30-06 Rifle":
   weapon_type: "rifle"
   description: "A .30-06 rifle."
   damage: 3
   accuracy: 10
   range: 7
+  sound: "gunshot.wav"

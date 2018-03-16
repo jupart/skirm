@@ -60,6 +60,59 @@ impl MapPoint {
         }
         neighbors
     }
+
+    pub fn has_line_of_sight(&self, to: &MapPoint, map: &SkirmMap) -> bool {
+        let x1 = self.x as f32;
+        let x2 = to.x as f32;
+        let y1 = self.y as f32;
+        let y2 = to.y as f32;
+        let mut tiles_to_check = Vec::new();
+
+        // Build our tiles_to_check from the equation of the line passing
+        // through `self` and `to`
+
+        // Special case - slope is infinite
+        if x2 == x1 {
+            let direction = (y2 - y1).signum();
+            let num_of_y_tiles = ((y2 - y1) / TILE_HEIGHT as f32).abs() as i32;
+            for i in 0..num_of_y_tiles {
+                let y = direction * (i * TILE_HEIGHT) as f32 + y1;
+                tiles_to_check.push(MapPoint::new(x1 as i32, y as i32));
+            }
+
+        // Regular equation of a line
+        } else {
+            let slope = (y2 - y1) / (x2 - x1);
+            let b = y2 - slope * x2;
+            let direction = (x2 - x1).signum();
+
+            // Should we use `x =` form or `y =`? If delta-x is greater, we use
+            // `y=` and vice versa
+            if (x2 - x1).abs() > (y2 - y1).abs() {
+                let num_of_x_tiles = ((x2 - x1) / TILE_WIDTH as f32).abs() as i32;
+                for i in 0..num_of_x_tiles {
+                    let x = direction * (i * TILE_WIDTH) as f32 + x1;
+                    let y = slope * x + b;
+                    tiles_to_check.push(MapPoint::new(x as i32, y as i32));
+                }
+            } else {
+                let num_of_y_tiles = ((y2 - y1) / TILE_HEIGHT as f32).abs() as i32;
+                for i in 0..num_of_y_tiles {
+                    let y = direction * (i * TILE_HEIGHT) as f32 + y1;
+                    let x = (y - b) / slope;
+                    tiles_to_check.push(MapPoint::new(x as i32, y as i32));
+                }
+            }
+        }
+
+        let mut has_sight = true;
+        for tile in tiles_to_check {
+            if !map.has_ground_at(&tile) {
+                has_sight = false;
+            }
+        }
+        has_sight
+    }
 }
 
 #[derive(PartialEq, Eq)]
@@ -118,5 +171,18 @@ impl SkirmMap {
         }
 
         Ok(SkirmMap { map })
+    }
+
+    pub fn has_ground_at(&self, point: &MapPoint) -> bool {
+        match self.map.get(point) {
+            Some(tile) => {
+                if tile.tile_type == TileType::Ground {
+                    true
+                } else {
+                    false
+                }
+            },
+            None => false,
+        }
     }
 }

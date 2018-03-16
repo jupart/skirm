@@ -45,14 +45,19 @@ impl AssetStorage {
         (name, ggez_path_str)
     }
 
-    pub fn load_images(&mut self, ctx: &mut Context) -> GameResult<()> {
+    pub fn load_images(&mut self, _ctx: &mut Context) -> GameResult<()> {
         use std::fs;
         let dirs = fs::read_dir("./resources/images")?;
 
         for directory in dirs {
-            let (name, ggez_path_str) = self.get_resource(directory.unwrap());
+            let (_name, _ggez_path_str) = self.get_resource(directory.unwrap());
         }
 
         Ok(())
+    }
+
+    pub fn play(&self, sound_name: &'static str) {
+        let sound = self.sounds.get(sound_name).unwrap();
+        sound.play().unwrap();
     }
 }

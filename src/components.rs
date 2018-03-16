@@ -4,12 +4,38 @@ use pathfinding::dijkstra;
 use std::collections::HashMap;
 use std::time::Duration;
 
+use item::Item;
 use rendering::RenderType;
 use skirmmap::{SkirmMap, MapPoint};
 
 #[derive(Component)]
-pub struct StatsComp {
+pub struct EquipmentComp {
+    pub items: Vec<Item>,
+}
 
+impl EquipmentComp {
+    pub fn new(items: Vec<Item>) -> EquipmentComp {
+        EquipmentComp { items }
+    }
+}
+
+#[derive(Component)]
+pub struct StatsComp {
+    pub health: u8,
+    pub max_health: u8,
+    pub strength: u8,
+    pub aim: u8,
+}
+
+impl StatsComp {
+    pub fn default() -> StatsComp {
+        StatsComp {
+            health: 100,
+            max_health: 100,
+            strength: 5,
+            aim: 5,
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -68,6 +94,7 @@ impl MoveToPoint {
 
 pub enum Action {
     MoveTo(MoveToPoint),
+    AttackAt(MapPoint),
     Idle,
 }
 
@@ -95,4 +122,5 @@ pub fn register_components(world: &mut World) {
     world.register::<SoundComp>();
     world.register::<ActionComp>();
     world.register::<StatsComp>();
+    world.register::<EquipmentComp>();
 }

@@ -1,4 +1,4 @@
-use std::time::Duration;
+// use std::time::Duration;
 
 use ggez::{graphics, Context};
 use specs::{Entities, Fetch, FetchMut, System, ReadStorage, WriteStorage, Join};
@@ -8,8 +8,8 @@ use components::*;
 use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use rendering::RenderType;
-use skirmmap::{TileType, SkirmMap, MapPoint};
-use skirmmap;
+use skirmmap::{SkirmMap, MapPoint};
+// use skirmmap;
 
 pub struct PositionSys;
 impl<'a> System<'a> for PositionSys {
@@ -17,7 +17,7 @@ impl<'a> System<'a> for PositionSys {
         WriteStorage<'a, PositionComp>,
     );
 
-    fn run(&mut self, data: Self::SystemData) {
+    fn run(&mut self, _data: Self::SystemData) {
 
     }
 }
@@ -52,7 +52,11 @@ impl<'a> System<'a> for PlayerInputSys {
                     }
                 },
                 PendingCommand::Attack => {
-                    println!("Attack at {:?}", to);
+                    if pos.has_line_of_sight(&to, &*skirmmap) {
+                        a.current_action = Action::AttackAt(to);
+                    } else {
+                        a.current_action = Action::Idle;
+                    }
                 }
             }
             input.pending_command = None;
@@ -80,17 +84,14 @@ impl<'a> System<'a> for ActionSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (time, stats, mut action_comp, mut position_comp) = data;
+        let (time, _stats, mut action_comp, mut position_comp) = data;
         let dt = time.delta.as_secs() as f32 + time.delta.subsec_nanos() as f32 * 1e-9;
 
         for (a, p) in (&mut action_comp, &mut position_comp).join() {
-            let mut change_action = false;
-            let mut change_to = Action::Idle;
+            let mut change_to = None;
 
             match a.current_action {
                 Action::MoveTo(ref mut move_to_point) => {
-                    // Pop off the next point, we'll put it back if we haven't
-                    // arrived yet.
                     let (x, y): (i32, i32);
                     {
                         let points_iter = move_to_point.point_stack.get(0).unwrap();
@@ -105,8 +106,7 @@ impl<'a> System<'a> for ActionSys {
                         p.y = y as f32;
                         move_to_point.point_stack.remove(0);
                         if move_to_point.point_stack.len() == 0 {
-                            change_action = true;
-                            change_to = Action::Idle;
+                            change_to = Some(Action::Idle);
                         }
                     } else {
                         let vec = (p.x - x as f32, p.y - y as f32);
@@ -116,12 +116,20 @@ impl<'a> System<'a> for ActionSys {
                         p.x -= move_vec.0;
                         p.y -= move_vec.1;
                     }
+                },
+                Action::AttackAt(point) => {
+                    println!("Attack at {:?}", point);
+                    // check that attack hit something
+                    // apply damage
+                    // draw attack
+                    // play attack sound
+                    change_to = Some(Action::Idle);
                 }
                 Action::Idle => (),
             }
 
-            if change_action {
-                a.current_action = change_to;
+            if change_to.is_some() {
+                a.current_action = change_to.unwrap();
             }
         }
     }
@@ -214,7 +222,7 @@ impl<'a> System<'a> for SoundSys {
         WriteStorage<'a, SoundComp>,
     );
 
-    fn run(&mut self, data: Self::SystemData) {
+    fn run(&mut self, _data: Self::SystemData) {
 
     }
 }
