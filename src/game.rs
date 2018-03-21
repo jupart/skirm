@@ -1,6 +1,6 @@
 use ggez::{timer, event, graphics, Context, GameResult};
-use ggez::event::{Axis, Keycode, Mod, MouseButton};
-use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Index};
+use ggez::event::{Keycode, Mod, MouseButton};
+use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
 
 use std::collections::HashMap;
 use std::time::Duration;
@@ -10,18 +10,18 @@ use components::*;
 use systems::*;
 use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
-// use rendering::RenderType;
 use item::ItemFactory;
 use skirmer::{SkirmerFactory, SkirmerType};
-use skirmmap::SkirmMap;
+use skirmmap::{MapPoint, SkirmMap};
+use gui::{Gui};
 
 pub struct Game<'a, 'b> {
     pub world: World,
     pub player_count: usize,
-    pub player1_id: Index,
-    pub player2_id: Index,
-    pub player3_id: Index,
-    pub player4_id: Index,
+    pub player1: Entity,
+    // pub player2_id: Index,
+    // pub player3_id: Index,
+    // pub player4_id: Index,
     pub dispatcher: Dispatcher<'a, 'b>,
     pub has_focus: bool,
     pub paused: bool,
@@ -46,7 +46,7 @@ impl<'a, 'b> Game<'a, 'b> {
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
         // Create entities
-        let player1_id = skirmer_factory.create_skirmer(
+        let player1 = skirmer_factory.create_skirmer(
             64.0,
             14.0,
             SkirmerType::Fighter,
@@ -59,7 +59,7 @@ impl<'a, 'b> Game<'a, 'b> {
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
-        world.add_resource(PlayerInput::new(player1_id));
+        world.add_resource(PlayerInput::new(player1.id()));
         world.add_resource(SkirmMap::load("./resources/maps/test.skirm_map")?);
 
         // Dispatch systems
@@ -73,10 +73,7 @@ impl<'a, 'b> Game<'a, 'b> {
         Ok(Game {
             world,
             player_count: pc,
-            player1_id,
-            player2_id: 0,
-            player3_id: 0,
-            player4_id: 0,
+            player1,
             dispatcher,
             has_focus: true,
             paused: false,
@@ -97,11 +94,20 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+        let input = self.world.read_resource::<PlayerInput>();
+        let assets = self.world.read_resource::<AssetStorage>();
+        let map = self.world.read_resource::<SkirmMap>();
+
+        let pos_components = self.world.read::<PositionComp>();
+        let player_pos = pos_components.get(self.player1).unwrap();
+        let pos = MapPoint::new(player_pos.x as i32, player_pos.y as i32);
+
         graphics::clear(ctx);
         {
             let mut rs = RenderSys::new(ctx);
             rs.run_now(&self.world.res);
         }
+        Gui::handle_event(Gui::draw_elements(&pos, &input, &assets, &*map, ctx));
         graphics::present(ctx);
 
         timer::yield_now();
@@ -118,13 +124,12 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         match keycode {
             Keycode::A => input.set_pending_command(PendingCommand::Attack),
             Keycode::M => input.set_pending_command(PendingCommand::Move),
+            Keycode::Escape => input.clear_pending_command(),
             _ => ()
         }
     }
 
     fn key_up_event(&mut self, _ctx: &mut Context, _keycode: Keycode, _keymod: Mod, _repeat: bool) { }
-
-    fn controller_axis_event(&mut self, _ctx: &mut Context, _axis: Axis, _value: i16, _instance_id: i32) { }
 
     fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) {
         self.has_focus = has_focus;

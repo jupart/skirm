@@ -15,8 +15,8 @@ Play loop will go like this:
 
 === Movement ===
  * Walk - normal move that doesn't incur any accuracy penalties
- * Run - move that incurs accuracy penalty
- * Climb - slower move that requires the character put away anything in their
+ * Run - fast move that incurs accuracy penalty
+ * Climb - slow move that requires the character put away anything in their
    hands
  * Jump
 
@@ -30,7 +30,6 @@ Play loop will go like this:
     * Throwables
     * Shields
     * Really random items
- * Change gear
 
 === Character ===
 The goal is to simulate health in a realistic way, tracking blood loss, pain

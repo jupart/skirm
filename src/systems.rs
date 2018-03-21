@@ -9,7 +9,6 @@ use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use rendering::RenderType;
 use skirmmap::{SkirmMap, MapPoint};
-// use skirmmap;
 
 pub struct PositionSys;
 impl<'a> System<'a> for PositionSys {
@@ -158,20 +157,6 @@ impl<'c> RenderSys<'c> {
         let glyph = graphics::Text::new(self.ctx, id, &assets.font).unwrap();
         graphics::draw(self.ctx, &glyph, point, 0.0).unwrap();
     }
-
-    fn draw_mode(&mut self, mode: PendingCommand, assets: &AssetStorage) {
-        let point = graphics::Point2::new(0.0, 0.0);
-        let word;
-        match mode {
-            PendingCommand::Move => {
-                word = graphics::Text::new(self.ctx, "Move", &assets.font).unwrap();
-            },
-            PendingCommand::Attack => {
-                word = graphics::Text::new(self.ctx, "Attack", &assets.font).unwrap();
-            },
-        }
-        graphics::draw(self.ctx, &word, point, 0.0).unwrap();
-    }
 }
 
 impl<'a, 'c> System<'a> for RenderSys<'c> {
@@ -206,11 +191,6 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
                     self.draw_glyph(id, (p.x, p.y), &assets);
                 }
             }
-        }
-
-        // Draw current command mode
-        if input.pending_command.is_some() {
-            self.draw_mode(input.pending_command.unwrap(), &assets);
         }
     }
 }

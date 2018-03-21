@@ -1,6 +1,4 @@
-// use std::collections::HashMap;
-
-use specs::{Index, World};
+use specs::{Entity, World};
 
 use item::{Item, ItemFactory};
 use components::*;
@@ -24,18 +22,17 @@ impl SkirmerFactory {
         skirmer: SkirmerType,
         item_factory: &ItemFactory,
         world: &mut World
-    ) -> Index {
+    ) -> Entity {
         let equipment = self.get_skirmer_items(skirmer, item_factory);
-        let id = world
+        let ent = world
             .create_entity()
             .with(PositionComp::new(x, y))
             .with(RenderComp { render_type: RenderType::Glyph { id: "@" } })
             .with(StatsComp::default())
             .with(ActionComp::new())
             .with(EquipmentComp::new(equipment))
-            .build()
-            .id();
-        id
+            .build();
+        ent
     }
 
     fn get_skirmer_items(&self, skirmer: SkirmerType, factory: &ItemFactory) -> Vec<Item> {

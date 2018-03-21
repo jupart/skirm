@@ -31,4 +31,9 @@ impl PlayerInput {
         self.pending_command = Some(cmd);
         self.command_point = None;
     }
+
+    pub fn clear_pending_command(&mut self) {
+        self.pending_command = None;
+        self.command_point = None;
+    }
 }

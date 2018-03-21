@@ -24,6 +24,7 @@ mod skirmer;
 mod item;
 mod skirmmap;
 mod input;
+mod gui;
 
 use game::Game;
 

@@ -14,4 +14,5 @@ ascii = "0.8.6"
 
 [dependencies.ggez]
 git = "https://github.com/ggez/ggez.git"
+branch = "devel"
 features = ["cargo-resource-root"]
