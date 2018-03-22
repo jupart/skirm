@@ -17,18 +17,26 @@ impl Gui {
         let mouse_pos = mouse::get_position(ctx).unwrap();
         let mouse_x = mouse_pos.x;
         let mouse_y = mouse_pos.y;
-        let mouse_tile = map.nearest_tile(&(mouse_x, mouse_y));
+        let mouse_tile = map.nearest_tile(mouse_x as i32, mouse_y as i32);
 
         let tiles_to_highlight = map.get_tiles_between(player_pos, &mouse_tile);
 
-        let white = Color { r: 1.0, g: 1.0, b: 1.0, a: 0.1 };
+        let white = Color { r: 1.0, g: 1.0, b: 1.0, a: 0.05 };
         graphics::set_color(ctx, white).unwrap();
 
-        for tile in tiles_to_highlight {
+        for tile in &tiles_to_highlight {
             let point = graphics::Point2::new(tile.x as f32, tile.y as f32);
             let rect = Rect::new(point.x, point.y, TILE_WIDTH as f32, TILE_HEIGHT as f32);
             graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();
         }
+
+        // Draw last tile twice
+        let tile = tiles_to_highlight.last().unwrap();
+        let point = graphics::Point2::new(tile.x as f32, tile.y as f32);
+        let rect = Rect::new(point.x, point.y, TILE_WIDTH as f32, TILE_HEIGHT as f32);
+        graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();
+
+        // Reset the color
         graphics::set_color(ctx, Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0 }).unwrap();
     }
 

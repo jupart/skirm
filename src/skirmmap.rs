@@ -158,7 +158,7 @@ impl SkirmMap {
         if x2 == x1 {
             let direction = (y2 - y1).signum();
             let num_of_y_tiles = ((y2 - y1) / TILE_HEIGHT as f32).abs() as i32;
-            for i in 0..num_of_y_tiles {
+            for i in 0..(num_of_y_tiles + 1) {
                 let y = direction * (i * TILE_HEIGHT) as f32 + y1;
                 tiles.push(MapPoint::new(x1 as i32, y as i32));
             }
@@ -167,20 +167,21 @@ impl SkirmMap {
         } else {
             let slope = (y2 - y1) / (x2 - x1);
             let b = y2 - slope * x2;
-            let direction = (x2 - x1).signum();
 
             // Should we use `x =` form or `y =`? If delta-x is greater, we use
             // `y=` and vice versa
             if (x2 - x1).abs() > (y2 - y1).abs() {
+                let direction = (x2 - x1).signum();
                 let num_of_x_tiles = ((x2 - x1) / TILE_WIDTH as f32).abs() as i32;
-                for i in 0..num_of_x_tiles {
+                for i in 0..(num_of_x_tiles + 1) {
                     let x = direction * (i * TILE_WIDTH) as f32 + x1;
                     let y = slope * x + b;
                     tiles.push(MapPoint::new(x as i32, y as i32));
                 }
             } else {
+                let direction = (y2 - y1).signum();
                 let num_of_y_tiles = ((y2 - y1) / TILE_HEIGHT as f32).abs() as i32;
-                for i in 0..num_of_y_tiles {
+                for i in 0..(num_of_y_tiles + 1) {
                     let y = direction * (i * TILE_HEIGHT) as f32 + y1;
                     let x = (y - b) / slope;
                     tiles.push(MapPoint::new(x as i32, y as i32));
@@ -190,9 +191,9 @@ impl SkirmMap {
         tiles
     }
 
-    pub fn nearest_tile(&self, pos: &(f32, f32)) -> MapPoint {
-        let rounded_x = (pos.0 / TILE_WIDTH as f32) * TILE_WIDTH as f32;
-        let rounded_y = (pos.1 / TILE_HEIGHT as f32) * TILE_HEIGHT as f32;
-        MapPoint { x: rounded_x as i32, y: rounded_y as i32}
+    pub fn nearest_tile(&self, x: i32, y: i32) -> MapPoint {
+        let rounded_x = (x / TILE_WIDTH) * TILE_WIDTH;
+        let rounded_y = (y / TILE_HEIGHT) * TILE_HEIGHT;
+        MapPoint { x: rounded_x, y: rounded_y}
     }
 }
