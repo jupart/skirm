@@ -68,10 +68,13 @@ impl<'a, 'b> Game<'a, 'b> {
             .add(SoundSys, "sound", &[])
             .build();
 
-        Ok(Game {
+        let gui = Gui::new();
+
+        Ok(Self {
             world,
             player_count: pc,
             player1,
+            gui,
             dispatcher,
             has_focus: true,
             paused: false,
@@ -105,7 +108,9 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
             let mut rs = RenderSys::new(ctx);
             rs.run_now(&self.world.res);
         }
-        Gui::handle_event(Gui::draw_elements(&pos, &input, &assets, &*map, ctx));
+
+        self.gui.draw(&pos, &input, &assets, &*map, ctx);
+
         graphics::present(ctx);
 
         timer::yield_now();
@@ -127,8 +132,6 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         }
     }
 
-    fn key_up_event(&mut self, _ctx: &mut Context, _keycode: Keycode, _keymod: Mod, _repeat: bool) { }
-
     fn focus_event(&mut self, _ctx: &mut Context, has_focus: bool) {
         self.has_focus = has_focus;
     }
@@ -143,6 +146,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         }
     }
 
+    // fn key_up_event(&mut self, _ctx: &mut Context, _keycode: Keycode, _keymod: Mod, _repeat: bool) { }
     // fn mouse_button_up_event(&mut self, _button: MouseButton, _x: i32, _y: i32) { ... }
     // fn mouse_motion_event(&mut self, _state: MouseState, _x: i32, _y: i32, _xrel: i32, _yrel: i32) { ... }
     // fn mouse_wheel_event(&mut self, _x: i32, _y: i32) { ... }
