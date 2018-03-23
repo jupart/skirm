@@ -170,10 +170,11 @@ impl SkirmMap {
 
             // Should we use `x =` form or `y =`? If delta-x is greater, we use
             // `y=` and vice versa
-            if (x2 - x1).abs() > (y2 - y1).abs() {
+            if ((x2 - x1) / TILE_WIDTH as f32).abs() >= ((y2 - y1) / TILE_HEIGHT as f32).abs() {
                 let direction = (x2 - x1).signum();
                 let num_of_x_tiles = ((x2 - x1) / TILE_WIDTH as f32).abs() as i32;
-                for i in 0..(num_of_x_tiles + 1) {
+                tiles.push(*p1);
+                for i in 1..(num_of_x_tiles + 1) {
                     let x = direction * (i * TILE_WIDTH) as f32 + x1;
                     let y = slope * x + b;
                     tiles.push(MapPoint::new(x as i32, y as i32));
@@ -181,7 +182,8 @@ impl SkirmMap {
             } else {
                 let direction = (y2 - y1).signum();
                 let num_of_y_tiles = ((y2 - y1) / TILE_HEIGHT as f32).abs() as i32;
-                for i in 0..(num_of_y_tiles + 1) {
+                tiles.push(*p1);
+                for i in 1..(num_of_y_tiles + 1) {
                     let y = direction * (i * TILE_HEIGHT) as f32 + y1;
                     let x = (y - b) / slope;
                     tiles.push(MapPoint::new(x as i32, y as i32));
