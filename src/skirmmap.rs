@@ -6,6 +6,9 @@ use std::collections::HashMap;
 
 use ggez::GameResult;
 use ascii::{ToAsciiChar, AsciiChar};
+use pathfinding::dijkstra;
+
+use input::PendingCommand;
 
 pub const TILE_WIDTH: i32 = 8;
 pub const TILE_HEIGHT: i32 = 14;
@@ -62,7 +65,7 @@ impl MapPoint {
     }
 
     pub fn has_line_of_sight(&self, to: &MapPoint, map: &SkirmMap) -> bool {
-        let tiles_to_check = map.get_tiles_between(self, to);
+        let tiles_to_check = map.get_tiles_between(self, to, PendingCommand::Attack);
         let mut has_sight = true;
         for tile in tiles_to_check {
             if !map.has_ground_at(&tile) {
@@ -144,7 +147,7 @@ impl SkirmMap {
         }
     }
 
-    pub fn get_tiles_between(&self, p1: &MapPoint, p2: &MapPoint) -> Vec<MapPoint> {
+    fn get_attack_tiles(&self, p1: &MapPoint, p2: &MapPoint) -> Vec<MapPoint> {
         let x1 = p1.x as f32;
         let x2 = p2.x as f32;
         let y1 = p1.y as f32;
@@ -193,9 +196,28 @@ impl SkirmMap {
         tiles
     }
 
+    pub fn get_tiles_between(&self, p1: &MapPoint, p2: &MapPoint, mode: PendingCommand) -> Vec<MapPoint> {
+        match mode {
+            PendingCommand::Move => {
+                match self.pathfind(p1, p2) {
+                    Some(points) => points,
+                    None => vec![]
+                }
+            },
+            _ => self.get_attack_tiles(p1, p2)
+        }
+    }
+
     pub fn nearest_tile(&self, x: i32, y: i32) -> MapPoint {
         let rounded_x = (x / TILE_WIDTH) * TILE_WIDTH;
         let rounded_y = (y / TILE_HEIGHT) * TILE_HEIGHT;
         MapPoint { x: rounded_x, y: rounded_y}
+    }
+
+    pub fn pathfind(&self, p1: &MapPoint, p2: &MapPoint) -> Option<Vec<MapPoint>> {
+        match dijkstra(p1, |p| p.neighbors(self), |p| *p == *p2) {
+            Some(points) => Some(points.0),
+            None => None,
+        }
     }
 }

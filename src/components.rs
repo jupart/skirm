@@ -80,11 +80,11 @@ impl MoveToPoint {
         move_to: MapPoint,
         map: &SkirmMap
     ) -> Result<MoveToPoint, ()> {
-        match dijkstra(&current_pos, |p| p.neighbors(map), |p| *p == move_to) {
+        match map.pathfind(&current_pos, &move_to) {
             Some(points) => {
                 Ok(MoveToPoint {
                     move_time: Duration::new(0, 0),
-                    point_stack: points.0,
+                    point_stack: points,
                 })
             },
             None => Err(()),
