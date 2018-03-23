@@ -139,8 +139,8 @@ pub struct RenderSys<'c> {
 }
 
 impl<'c> RenderSys<'c> {
-    pub fn new(ctx: &'c mut Context) -> RenderSys<'c> {
-        RenderSys { ctx }
+    pub fn new(ctx: &'c mut Context) -> Self {
+        Self { ctx }
     }
 
     fn draw_image(&mut self, id: &'static str, pos: (f32, f32), assets: &AssetStorage) {

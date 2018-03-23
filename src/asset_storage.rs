@@ -11,12 +11,12 @@ pub struct AssetStorage {
 }
 
 impl AssetStorage {
-    pub fn new(ctx: &mut Context) -> GameResult<AssetStorage> {
+    pub fn new(ctx: &mut Context) -> GameResult<Self> {
         let map1 = HashMap::new();
         let map2 = HashMap::new();
         let font = Font::new(ctx, "/fonts/FiraMono-Regular.ttf", 14)?;
 
-        Ok(AssetStorage {
+        Ok(Self {
             images: map1,
             sounds: map2,
             font,

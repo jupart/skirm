@@ -20,18 +20,18 @@ pub struct MapPoint {
 }
 
 impl MapPoint {
-    pub fn new(x: i32, y: i32) -> MapPoint {
+    pub fn new(x: i32, y: i32) -> Self {
         // Round x and y down to TILE_WIDTH and TILE_HEIGHT
         let rounded_x = (x / TILE_WIDTH) * TILE_WIDTH;
         let rounded_y = (y / TILE_HEIGHT) * TILE_HEIGHT;
-        MapPoint { x: rounded_x, y: rounded_y }
+        Self { x: rounded_x, y: rounded_y }
     }
 
-    fn offset(&self, point: (i32, i32)) -> MapPoint {
+    fn offset(&self, point: (i32, i32)) -> Self {
         MapPoint { x: self.x + point.0, y: self.y + point.1 }
     }
 
-    pub fn neighbors(&self, map: &SkirmMap) -> Vec<(MapPoint, usize)> {
+    pub fn neighbors(&self, map: &SkirmMap) -> Vec<(Self, usize)> {
         let mut neighbors = Vec::new();
         let points_to_check = vec![
             (-TILE_WIDTH, -TILE_HEIGHT), (0, -TILE_HEIGHT), (TILE_WIDTH, -TILE_HEIGHT),
@@ -64,7 +64,7 @@ impl MapPoint {
         neighbors
     }
 
-    pub fn has_line_of_sight(&self, to: &MapPoint, map: &SkirmMap) -> bool {
+    pub fn has_line_of_sight(&self, to: &Self, map: &SkirmMap) -> bool {
         let tiles_to_check = map.get_tiles_between(self, to, PendingCommand::Attack);
         let mut has_sight = true;
         for tile in tiles_to_check {
@@ -88,13 +88,13 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub fn new(tile_type: TileType) -> Tile {
+    pub fn new(tile_type: TileType) -> Self {
         match tile_type {
             TileType::Wall => {
-                Tile { tile_type, glyph: "#" }
+                Self { tile_type, glyph: "#" }
             },
             TileType::Ground => {
-                Tile { tile_type, glyph: "" }
+                Self { tile_type, glyph: "" }
             }
         }
     }
@@ -105,7 +105,7 @@ pub struct SkirmMap {
 }
 
 impl SkirmMap {
-    pub fn load<P>(path: P) -> GameResult<SkirmMap>
+    pub fn load<P>(path: P) -> GameResult<Self>
         where P: AsRef<Path> + Debug,
     {
         let map_file = File::open(path)?;
@@ -131,7 +131,7 @@ impl SkirmMap {
             }
         }
 
-        Ok(SkirmMap { map })
+        Ok(Self { map })
     }
 
     pub fn has_ground_at(&self, point: &MapPoint) -> bool {

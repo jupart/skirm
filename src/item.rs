@@ -35,7 +35,7 @@ pub struct ItemFactory {
 }
 
 impl ItemFactory {
-    pub fn new() -> GameResult<ItemFactory> {
+    pub fn new() -> GameResult<Self> {
 
         // Weapons - open the file, read it into a buffer, deserialize with serde
         let mut weapon_file = File::open("./resources/weapons.yml")?;

@@ -11,8 +11,8 @@ pub enum SkirmerType {
 pub struct SkirmerFactory;
 
 impl SkirmerFactory {
-    pub fn new() -> SkirmerFactory {
-        SkirmerFactory{}
+    pub fn new() -> Self {
+        Self {  }
     }
 
     pub fn create_skirmer(

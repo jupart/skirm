@@ -15,7 +15,7 @@ pub struct PlayerInput {
 }
 
 impl PlayerInput {
-    pub fn new(id: Index) -> PlayerInput {
+    pub fn new(id: Index) -> Self {
         PlayerInput {
             pending_command: None,
             command_point: None,

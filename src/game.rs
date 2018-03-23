@@ -19,16 +19,14 @@ pub struct Game<'a, 'b> {
     pub world: World,
     pub player_count: usize,
     pub player1: Entity,
-    // pub player2_id: Index,
-    // pub player3_id: Index,
-    // pub player4_id: Index,
+    pub gui: Gui,
     pub dispatcher: Dispatcher<'a, 'b>,
     pub has_focus: bool,
     pub paused: bool,
 }
 
 impl<'a, 'b> Game<'a, 'b> {
-    pub fn new(ctx: &mut Context) -> GameResult<Game<'a, 'b>> {
+    pub fn new(ctx: &mut Context) -> GameResult<Self> {
         let mut world = World::new();
 
         let pc = 0;

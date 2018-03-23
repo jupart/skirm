@@ -1,5 +1,4 @@
 use specs::{VecStorage, World};
-use pathfinding::dijkstra;
 
 use std::collections::HashMap;
 use std::time::Duration;
@@ -14,8 +13,8 @@ pub struct EquipmentComp {
 }
 
 impl EquipmentComp {
-    pub fn new(items: Vec<Item>) -> EquipmentComp {
-        EquipmentComp { items }
+    pub fn new(items: Vec<Item>) -> Self {
+        Self { items }
     }
 }
 
@@ -28,8 +27,8 @@ pub struct StatsComp {
 }
 
 impl StatsComp {
-    pub fn default() -> StatsComp {
-        StatsComp {
+    pub fn default() -> Self {
+        Self {
             health: 100,
             max_health: 100,
             strength: 5,
@@ -63,8 +62,8 @@ pub struct PositionComp {
 }
 
 impl PositionComp {
-    pub fn new(x: f32, y: f32) -> PositionComp {
-        PositionComp { x, y }
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
     }
 }
 
@@ -79,10 +78,10 @@ impl MoveToPoint {
         current_pos: MapPoint,
         move_to: MapPoint,
         map: &SkirmMap
-    ) -> Result<MoveToPoint, ()> {
+    ) -> Result<Self, ()> {
         match map.pathfind(&current_pos, &move_to) {
             Some(points) => {
-                Ok(MoveToPoint {
+                Ok(Self {
                     move_time: Duration::new(0, 0),
                     point_stack: points,
                 })
@@ -105,8 +104,8 @@ pub struct ActionComp {
 }
 
 impl ActionComp {
-    pub fn new() -> ActionComp {
-        ActionComp { current_action: Action::Idle }
+    pub fn new() -> Self {
+        Self { current_action: Action::Idle }
     }
 }
 
