@@ -1,5 +1,5 @@
 use ggez::GameResult;
-use serde_yaml;
+use ron;
 
 use std::collections::HashMap;
 use std::fs::File;
@@ -38,15 +38,15 @@ impl ItemFactory {
     pub fn new() -> GameResult<Self> {
 
         // Weapons - open the file, read it into a buffer, deserialize with serde
-        let mut weapon_file = File::open("./resources/weapons.yml")?;
+        let mut weapon_file = File::open("./resources/weapons.ron")?;
         let mut buffer = String::new();
         weapon_file.read_to_string(&mut buffer)?;
-        let weapons: HashMap<String, Weapon> = match serde_yaml::from_str(&buffer.as_str()) {
+        let weapons: HashMap<String, Weapon> = match ron::de::from_str(&buffer.as_str()) {
             Ok(result) => result,
 
             // TODO In the future we could have some builtin weapons that don't
             // require .yml definition and use them here.
-            Err(e) => panic!("Error reading weapon.yml, format is corrupt. {:?}", e),
+            Err(e) => panic!("Error reading weapon.ron, format is corrupt. {:?}", e),
         };
 
         Ok(ItemFactory { weapons })
