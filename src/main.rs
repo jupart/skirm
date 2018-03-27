@@ -1,7 +1,9 @@
+#![allow(dead_code)]
+
 extern crate ggez;
 extern crate specs;
 extern crate serde;
-extern crate serde_yaml;
+extern crate ron;
 extern crate ascii;
 extern crate pathfinding;
 
@@ -30,12 +32,8 @@ use game::Game;
 
 fn main() {
     let cb = ContextBuilder::new("skirm", "jupart")
-        .window_setup(conf::WindowSetup::default()
-            .title("skirm")
-        )
-        .window_mode(conf::WindowMode::default()
-            .dimensions(250, 450)
-        );
+        .window_setup(conf::WindowSetup::default().title("skirm"))
+        .window_mode(conf::WindowMode::default().dimensions(250, 450));
 
     let ctx = &mut cb.build().unwrap();
 

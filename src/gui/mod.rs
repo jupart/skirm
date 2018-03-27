@@ -1,32 +1,27 @@
+mod widgets;
+
 use ggez::{graphics, Context};
 use ggez::graphics::{Color, Rect, DrawMode, Point2};
 use ggez::mouse;
 
+use rendering::{WHITE, BLACK};
 use asset_storage::AssetStorage;
 use input::{PendingCommand, PlayerInput};
 use skirmmap::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT};
+use self::widgets::{Widget, Button, PosHint};
 
-pub enum GuiEvent {
-
-}
-
-struct GuiState {
-    elements: Vec<Box<GuiElement>>,
-}
-
-impl GuiState {
-    pub fn new() -> Self {
-        Self { elements: vec![] }
-    }
+fn simple_callback() {
+    println!("clicked");
 }
 
 pub struct Gui {
-    state: GuiState,
+    pub widgets: Vec<Box<Widget>>,
 }
 
 impl Gui {
-    pub fn new() -> Self {
-        Self { state: GuiState::new() }
+    pub fn new(ctx: &Context) -> Self {
+        let widgets = main_gui_state_widgets(ctx);
+        Self { widgets }
     }
 
     fn draw_line_to_mouse(&self, player_pos: &MapPoint, mode: PendingCommand, map: &SkirmMap, ctx: &mut Context) {
@@ -64,7 +59,11 @@ impl Gui {
         graphics::set_color(ctx, true_white).unwrap();
     }
 
-    pub fn draw(&self, player_pos: &MapPoint, input: &PlayerInput, assets: &AssetStorage, map: &SkirmMap, ctx: &mut Context) -> Option<GuiEvent> {
+    pub fn draw(&self, player_pos: &MapPoint, input: &PlayerInput, assets: &AssetStorage, map: &SkirmMap, ctx: &mut Context) {
+        for widget in &self.widgets {
+            widget.draw(assets, ctx);
+        }
+
         if input.pending_command.is_some() {
             let x = 0.0;
             let y = (ctx.conf.window_mode.height - TILE_HEIGHT as u32) as f32;
@@ -82,62 +81,43 @@ impl Gui {
 
             self.draw_line_to_mouse(player_pos, input.pending_command.unwrap(), map, ctx);
         }
-        None
     }
 
-    pub fn handle_event(&self, event: Option<GuiEvent>) {
-        if event.is_some() {
-            match event {
-                _ => ()
+    pub fn handle_click(&mut self, mouse_pos: Point2) -> bool {
+        let mut captured_click = false;
+        for widget in &mut self.widgets {
+            if widget.handle_click(&mouse_pos) {
+                captured_click = true;
             }
         }
-    }
-}
-
-trait GuiElement {
-    fn draw(&self, assets: &AssetStorage, ctx: &mut Context);
-    fn handle_click(&self, mouse_pos: &Point2) -> bool;
-}
-
-pub struct Button {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-    pub bg: Color,
-    pub fg: Color,
-    pub text: String,
-}
-
-impl GuiElement for Button {
-    fn draw(&self, assets: &AssetStorage, ctx: &mut Context) {
-        // Rectangle button shape
-        graphics::set_color(ctx, self.bg).unwrap();
-        let rect = Rect::new(self.x, self.y, self.w, self.h);
-        graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();
-
-        // Text
-        graphics::set_color(ctx, self.fg).unwrap();
-        let draw_point = graphics::Point2::new(self.x, self.y);
-        let draw_text = graphics::Text::new(ctx, &self.text, &assets.font).unwrap();
-        graphics::draw(ctx, &draw_text, draw_point, 0.0).unwrap();
+        captured_click
     }
 
-    // Returns `true` if clicked and calls its stored callback, else `false`
-    fn handle_click(&self, mouse_pos: &Point2) -> bool {
-        let l = self.x;
-        let r = l + self.w;
-        let t = self.y;
-        let b = t + self.h;
-        let x = mouse_pos.x;
-        let y = mouse_pos.y;
-
-        let is_in: bool;
-        if x >= l && x <= r && y <= b && y >= t {
-            is_in = true;
-        } else {
-            is_in = false;
+    pub fn window_resized(&mut self, w: u32, h: u32) {
+        for widget in &mut self.widgets {
+            widget.update_location(w, h);
         }
-        is_in
     }
+
+    pub fn add_widget(&mut self, widget: Box<Widget>) {
+        self.widgets.push(widget);
+    }
+}
+
+fn main_gui_state_widgets(ctx: &Context) -> Vec<Box<Widget>> {
+    let mut widgets: Vec<Box<Widget>> = Vec::new();
+
+    let button = Button::new(
+        Point2::new(0.0, 0.0),
+        Point2::new(75.0, 20.0),
+        WHITE,
+        BLACK,
+        String::from("Clickme"),
+        Box::new(simple_callback),
+        Some((PosHint::Left, PosHint::Bottom)),
+        ctx,
+    );
+
+    widgets.push(Box::new(button));
+    widgets
 }

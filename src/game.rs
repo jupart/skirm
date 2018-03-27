@@ -1,5 +1,6 @@
 use ggez::{timer, event, graphics, Context, GameResult};
 use ggez::event::{Keycode, Mod, MouseButton};
+use ggez::graphics::{Point2, Color};
 use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
 
 use std::collections::HashMap;
@@ -68,7 +69,9 @@ impl<'a, 'b> Game<'a, 'b> {
             .add(SoundSys, "sound", &[])
             .build();
 
-        let gui = Gui::new();
+        let gui = Gui::new(ctx);
+
+        graphics::set_background_color(ctx, Color::from_rgb(40, 40, 40));
 
         Ok(Self {
             world,
@@ -138,6 +141,11 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
 
     fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
         let mut input = self.world.write_resource::<PlayerInput>();
+
+        if self.gui.handle_click(Point2::new(x as f32, y as f32)) {
+            return
+        }
+
         match button {
             MouseButton::Left => input.select_point(x, y),
             MouseButton::Right => (),
@@ -146,6 +154,11 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         }
     }
 
+    fn resize_event(&mut self, _ctx: &mut Context, width: u32, height: u32) {
+        self.gui.window_resized(width, height);
+    }
+
+    // fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, x: i32, y: i32) {
     // fn key_up_event(&mut self, _ctx: &mut Context, _keycode: Keycode, _keymod: Mod, _repeat: bool) { }
     // fn mouse_button_up_event(&mut self, _button: MouseButton, _x: i32, _y: i32) { ... }
     // fn mouse_motion_event(&mut self, _state: MouseState, _x: i32, _y: i32, _xrel: i32, _yrel: i32) { ... }
@@ -153,5 +166,4 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     // fn controller_button_down_event(&mut self, _btn: Button, _instance_id: i32) { ... }
     // fn controller_button_up_event(&mut self, _btn: Button, _instance_id: i32) { ... }
     // fn quit_event(&mut self) -> bool { ... }
-    // fn resize_event(&mut self, _ctx: &mut Context, _width: u32, _height: u32) { ... }
 }

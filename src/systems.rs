@@ -7,7 +7,7 @@ use asset_storage::AssetStorage;
 use components::*;
 use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
-use rendering::RenderType;
+use rendering::{RenderType, WHITE};
 use skirmmap::{SkirmMap, MapPoint};
 
 pub struct PositionSys;
@@ -146,6 +146,7 @@ impl<'c> RenderSys<'c> {
     fn draw_image(&mut self, id: &'static str, pos: (f32, f32), assets: &AssetStorage) {
         if let Some(image) = assets.images.get(id) {
             let point = graphics::Point2::new(pos.0, pos.1);
+            graphics::set_color(self.ctx, WHITE).unwrap();
             graphics::draw(self.ctx, image, point, 0.0).unwrap();
         } else {
             // TODO: Log that we didn't find the image with id
@@ -155,6 +156,7 @@ impl<'c> RenderSys<'c> {
     fn draw_glyph(&mut self, id: &'static str, pos: (f32, f32), assets: &AssetStorage) {
         let point = graphics::Point2::new(pos.0, pos.1);
         let glyph = graphics::Text::new(self.ctx, id, &assets.font).unwrap();
+        graphics::set_color(self.ctx, WHITE).unwrap();
         graphics::draw(self.ctx, &glyph, point, 0.0).unwrap();
     }
 }
@@ -163,13 +165,12 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
     type SystemData = (
         Fetch<'a, AssetStorage>,
         Fetch<'a, SkirmMap>,
-        Fetch<'a, PlayerInput>,
         ReadStorage<'a, RenderComp>,
         ReadStorage<'a, PositionComp>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (assets, map, input, render_comp, position_comp) = data;
+        let (assets, map, render_comp, position_comp) = data;
 
         // Draw map
         for (ref point, ref tile) in &map.map {
