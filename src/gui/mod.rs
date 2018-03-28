@@ -93,6 +93,16 @@ impl Gui {
         captured_click
     }
 
+    pub fn handle_release(&mut self, mouse_pos: Point2) -> bool {
+        let mut captured_click = false;
+        for widget in &mut self.widgets {
+            if widget.handle_release(&mouse_pos) {
+                captured_click = true;
+            }
+        }
+        captured_click
+    }
+
     pub fn window_resized(&mut self, w: u32, h: u32) {
         for widget in &mut self.widgets {
             widget.update_location(w, h);
@@ -107,17 +117,35 @@ impl Gui {
 fn main_gui_state_widgets(ctx: &Context) -> Vec<Box<Widget>> {
     let mut widgets: Vec<Box<Widget>> = Vec::new();
 
-    let button = Button::new(
-        Point2::new(0.0, 0.0),
+    widgets.push(Box::new(Button::new(
         Point2::new(75.0, 20.0),
         WHITE,
         BLACK,
         String::from("Clickme"),
         Box::new(simple_callback),
-        Some((PosHint::Left, PosHint::Bottom)),
+        Some(PosHint { x: 0.0, y: 1.0 }),
         ctx,
-    );
+    )));
 
-    widgets.push(Box::new(button));
+    widgets.push(Box::new(Button::new(
+        Point2::new(75.0, 20.0),
+        WHITE,
+        BLACK,
+        String::from("Clickme2"),
+        Box::new(simple_callback),
+        Some(PosHint { x: 0.5, y: 1.0 }),
+        ctx,
+    )));
+
+    widgets.push(Box::new(Button::new(
+        Point2::new(75.0, 20.0),
+        WHITE,
+        BLACK,
+        String::from("Clickme3"),
+        Box::new(simple_callback),
+        Some(PosHint { x: 1.0, y: 1.0 }),
+        ctx,
+    )));
+
     widgets
 }
