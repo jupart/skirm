@@ -93,9 +93,9 @@ impl<'a> System<'a> for ActionSys {
                 Action::MoveTo(ref mut move_to_point) => {
                     let (x, y): (i32, i32);
                     {
-                        let points_iter = move_to_point.point_stack.get(0).unwrap();
-                        x = points_iter.x.clone();
-                        y = points_iter.y.clone();
+                        let points_iter = &move_to_point.point_stack[0];
+                        x = points_iter.x;
+                        y = points_iter.y;
                     }
                     let speed = 50.0;
 
@@ -104,7 +104,7 @@ impl<'a> System<'a> for ActionSys {
                         p.x = x as f32;
                         p.y = y as f32;
                         move_to_point.point_stack.remove(0);
-                        if move_to_point.point_stack.len() == 0 {
+                        if move_to_point.point_stack.is_empty() {
                             change_to = Some(Action::Idle);
                         }
                     } else {
@@ -173,7 +173,7 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
         let (assets, map, render_comp, position_comp) = data;
 
         // Draw map
-        for (ref point, ref tile) in &map.map {
+        for (point, tile) in &map.map {
             let x = point.x as f32;
             let y = point.y as f32;
 

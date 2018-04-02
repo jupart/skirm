@@ -19,23 +19,22 @@ impl SkirmerFactory {
         &self,
         x: f32,
         y: f32,
-        skirmer: SkirmerType,
+        skirmer: &SkirmerType,
         item_factory: &ItemFactory,
         world: &mut World
     ) -> Entity {
         let equipment = self.get_skirmer_items(skirmer, item_factory);
-        let ent = world
-            .create_entity()
+
+        world.create_entity()
             .with(PositionComp::new(x, y))
             .with(RenderComp { render_type: RenderType::Glyph { id: "@" } })
             .with(StatsComp::default())
             .with(ActionComp::new())
             .with(EquipmentComp::new(equipment))
-            .build();
-        ent
+            .build()
     }
 
-    fn get_skirmer_items(&self, skirmer: SkirmerType, factory: &ItemFactory) -> Vec<Item> {
+    fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> Vec<Item> {
         match skirmer {
             SkirmerType::Fighter => {
                 let weapon = factory.get_weapon(".22 Rifle");

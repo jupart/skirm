@@ -49,12 +49,12 @@ impl<'a, 'b> Game<'a, 'b> {
         let player1 = skirmer_factory.create_skirmer(
             64.0,
             14.0,
-            SkirmerType::Fighter,
+            &SkirmerType::Fighter,
             &item_factory,
             &mut world,
         );
 
-        skirmer_factory.create_skirmer(64.0, 40.0, SkirmerType::Fighter, &item_factory, &mut world);
+        skirmer_factory.create_skirmer(64.0, 40.0, &SkirmerType::Fighter, &item_factory, &mut world);
 
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);

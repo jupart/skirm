@@ -52,12 +52,11 @@ impl MapPoint {
             };
 
             if neighbor.tile_type == TileType::Ground {
-                let weight: usize;
-                if i == 0 || i == 2 || i == 5 || i == 7 {
-                    weight = 2;
+                let weight = if i == 0 || i == 2 || i == 5 || i == 7 {
+                    2
                 } else {
-                    weight = 1;
-                }
+                    1
+                };
                 neighbors.push((next_point, weight));
             }
         }
@@ -137,11 +136,7 @@ impl SkirmMap {
     pub fn has_ground_at(&self, point: &MapPoint) -> bool {
         match self.map.get(point) {
             Some(tile) => {
-                if tile.tile_type == TileType::Ground {
-                    true
-                } else {
-                    false
-                }
+                tile.tile_type == TileType::Ground
             },
             None => false,
         }
@@ -158,7 +153,7 @@ impl SkirmMap {
         // through `self` and `to`
 
         // Special case - slope is infinite
-        if x2 == x1 {
+        if p1.x == p2.x {
             let direction = (y2 - y1).signum();
             let num_of_y_tiles = ((y2 - y1) / TILE_HEIGHT as f32).abs() as i32;
             for i in 0..(num_of_y_tiles + 1) {

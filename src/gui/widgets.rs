@@ -51,15 +51,13 @@ impl Widget for Button {
     }
 
     fn handle_click(&mut self, mouse_pos: &Point2) -> bool {
-        let l = self.pos.x;
-        let r = l + self.size.x;
-        let t = self.pos.y;
-        let b = t + self.size.y;
-        let x = mouse_pos.x;
-        let y = mouse_pos.y;
+        let left = self.pos.x;
+        let right = left + self.size.x;
+        let top = self.pos.y;
+        let bottom = top + self.size.y;
 
         let is_in: bool;
-        if x >= l && x <= r && y <= b && y >= t {
+        if mouse_pos.x >= left && mouse_pos.x <= right && mouse_pos.y <= bottom && mouse_pos.y >= top {
             is_in = true;
             self.is_pressed = true;
         } else {
@@ -69,21 +67,14 @@ impl Widget for Button {
     }
 
     fn handle_release(&mut self, mouse_pos: &Point2) -> bool {
-        let l = self.pos.x;
-        let r = l + self.size.x;
-        let t = self.pos.y;
-        let b = t + self.size.y;
-        let x = mouse_pos.x;
-        let y = mouse_pos.y;
+        let left = self.pos.x;
+        let right = left + self.size.x;
+        let top = self.pos.y;
+        let bottom = top + self.size.y;
 
-        let is_in: bool;
-        if x >= l && x <= r && y <= b && y >= t {
-            if self.is_pressed {
-                (self.callback)();
-            }
-            is_in = true;
-        } else {
-            is_in = false;
+        let is_in = mouse_pos.x >= left && mouse_pos.x <= right && mouse_pos.y <= bottom && mouse_pos.y >= top;
+        if is_in && self.is_pressed {
+            (self.callback)();
         }
         self.is_pressed = false;
         is_in
@@ -106,7 +97,7 @@ impl Button {
     ) -> Self {
         let w = ctx.conf.window_mode.width;
         let h = ctx.conf.window_mode.height;
-        let hinted_pos = pos_from_hint(&pos_hint.as_ref().unwrap(), &size, w, h);
+        let hinted_pos = pos_from_hint(pos_hint.as_ref().unwrap(), &size, w, h);
 
         Self { pos: hinted_pos, size, bg, fg, text, callback, pos_hint, is_pressed: false }
     }

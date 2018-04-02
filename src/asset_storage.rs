@@ -28,7 +28,7 @@ impl AssetStorage {
         let dirs = fs::read_dir("./resources/sounds")?;
 
         for directory in dirs {
-            let (name, ggez_path_str) = self.get_resource(directory.unwrap());
+            let (name, ggez_path_str) = self.get_resource(&directory.unwrap());
             let sound = audio::Source::new(ctx, ggez_path_str)?;
             self.sounds.insert(name, sound);
         }
@@ -36,12 +36,12 @@ impl AssetStorage {
         Ok(())
     }
 
-    fn get_resource(&self, dir: DirEntry) -> (String, String) {
+    fn get_resource(&self, dir: &DirEntry) -> (String, String) {
         // What a mess.. TODO figure out how to fix this
         let path_str = String::from(dir.path().to_str().unwrap());
         let ggez_path_str = String::from(path_str.split("./resources").nth(1).unwrap());
-        let ext_name = path_str.split("/").nth(3).unwrap();
-        let name = String::from(ext_name.split(".").nth(0).unwrap());
+        let ext_name = path_str.split('/').nth(3).unwrap();
+        let name = String::from(ext_name.split('.').nth(0).unwrap());
         (name, ggez_path_str)
     }
 
@@ -50,14 +50,14 @@ impl AssetStorage {
         let dirs = fs::read_dir("./resources/images")?;
 
         for directory in dirs {
-            let (_name, _ggez_path_str) = self.get_resource(directory.unwrap());
+            let (_name, _ggez_path_str) = self.get_resource(&directory.unwrap());
         }
 
         Ok(())
     }
 
     pub fn play(&self, sound_name: &'static str) {
-        let sound = self.sounds.get(sound_name).unwrap();
+        let sound = &self.sounds[sound_name];
         sound.play().unwrap();
     }
 }
