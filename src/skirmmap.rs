@@ -8,8 +8,6 @@ use ggez::GameResult;
 use ascii::{ToAsciiChar, AsciiChar};
 use pathfinding::dijkstra;
 
-use input::PendingCommand;
-
 pub const TILE_WIDTH: i32 = 8;
 pub const TILE_HEIGHT: i32 = 14;
 
@@ -61,17 +59,6 @@ impl MapPoint {
             }
         }
         neighbors
-    }
-
-    pub fn has_line_of_sight(&self, to: &Self, map: &SkirmMap) -> bool {
-        let tiles_to_check = map.get_tiles_between(self, to, PendingCommand::Attack);
-        let mut has_sight = true;
-        for tile in tiles_to_check {
-            if !map.has_ground_at(&tile) {
-                has_sight = false;
-            }
-        }
-        has_sight
     }
 }
 
@@ -142,7 +129,7 @@ impl SkirmMap {
         }
     }
 
-    fn get_attack_tiles(&self, p1: &MapPoint, p2: &MapPoint) -> Vec<MapPoint> {
+    pub fn get_tiles_between(&self, p1: &MapPoint, p2: &MapPoint) -> Vec<MapPoint> {
         let x1 = p1.x as f32;
         let x2 = p2.x as f32;
         let y1 = p1.y as f32;
@@ -191,15 +178,10 @@ impl SkirmMap {
         tiles
     }
 
-    pub fn get_tiles_between(&self, p1: &MapPoint, p2: &MapPoint, mode: PendingCommand) -> Vec<MapPoint> {
-        match mode {
-            PendingCommand::Move => {
-                match self.pathfind(p1, p2) {
-                    Some(points) => points,
-                    None => vec![]
-                }
-            },
-            _ => self.get_attack_tiles(p1, p2)
+    pub fn pathfind(&self, p1: &MapPoint, p2: &MapPoint) -> Option<Vec<MapPoint>> {
+        match dijkstra(p1, |p| p.neighbors(self), |p| *p == *p2) {
+            Some(points) => Some(points.0),
+            None => None,
         }
     }
 
@@ -209,10 +191,18 @@ impl SkirmMap {
         MapPoint { x: rounded_x, y: rounded_y}
     }
 
-    pub fn pathfind(&self, p1: &MapPoint, p2: &MapPoint) -> Option<Vec<MapPoint>> {
-        match dijkstra(p1, |p| p.neighbors(self), |p| *p == *p2) {
-            Some(points) => Some(points.0),
-            None => None,
+    pub fn has_line_of_sight(&self, p1: &MapPoint, p2: &MapPoint) -> bool {
+        let tiles_to_check = self.get_tiles_between(p1, p2);
+        let mut has_sight = true;
+        for tile in tiles_to_check {
+            if !self.has_ground_at(&tile) {
+                has_sight = false;
+            }
         }
+        has_sight
     }
+}
+
+pub fn tile_distance(p1: &MapPoint, p2: MapPoint) -> u16 {
+    (((p1.x - p2.x).pow(2) + (p1.y - p2.y).pow(2)) as f64).sqrt() as u16
 }

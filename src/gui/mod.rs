@@ -30,7 +30,17 @@ impl Gui {
         let mouse_y = mouse_pos.y;
         let mouse_tile = map.nearest_tile(mouse_x as i32, mouse_y as i32);
 
-        let tiles_to_highlight = map.get_tiles_between(player_pos, &mouse_tile, mode);
+        let tiles_to_highlight = match mode {
+            PendingCommand::Move => {
+                let optional_tiles = map.pathfind(player_pos, &mouse_tile);
+                if optional_tiles.is_some() {
+                    optional_tiles.unwrap()
+                } else {
+                    vec![]
+                }
+            },
+            PendingCommand::Attack => map.get_tiles_between(player_pos, &mouse_tile),
+        };
         if tiles_to_highlight.is_empty() {
             return
         }

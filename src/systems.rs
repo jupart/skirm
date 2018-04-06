@@ -51,7 +51,7 @@ impl<'a> System<'a> for PlayerInputSys {
                     }
                 },
                 PendingCommand::Attack => {
-                    if pos.has_line_of_sight(&to, &*skirmmap) {
+                    if skirmmap.has_line_of_sight(&pos, &to) {
                         a.current_action = Action::AttackAt(to);
                     } else {
                         a.current_action = Action::Idle;
