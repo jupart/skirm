@@ -5,29 +5,25 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
+use skirmmap::{MapPoint};
+
 pub enum Item {
-    Weapon(Weapon),
-    Armor(Armor),
 }
 
 #[derive(Clone, Deserialize)]
 pub struct Weapon {
-    weapon_type: String,
-    description: String,
-    damage: u8,
-    accuracy: u8,
-    range: u8,
-    sound: String,
+    pub weapon_type: String,
+    pub description: String,
+    pub damage: u8,
+    pub accuracy: u8,
+    pub range: u8,
+    pub sound: String,
 }
 
 impl Weapon {
-    pub fn attack() {
-
+    pub fn attack(&self, distance: u8) -> u8 {
+        self.damage
     }
-}
-
-pub struct Armor {
-
 }
 
 pub struct ItemFactory {
@@ -45,16 +41,16 @@ impl ItemFactory {
             Ok(result) => result,
 
             // TODO In the future we could have some builtin weapons that don't
-            // require .yml definition and use them here.
+            // require .ron definition and use them here.
             Err(e) => panic!("Error reading weapon.ron, format is corrupt. {:?}", e),
         };
 
         Ok(ItemFactory { weapons })
     }
 
-    pub fn get_weapon(&self, name: &'static str) -> Item {
+    pub fn get_weapon(&self, name: &'static str) -> Weapon {
         match self.weapons.get(name) {
-            Some(weapon) => Item::Weapon(weapon.clone()),
+            Some(weapon) => weapon.clone(),
             _ => panic!("Error getting weapon named {}", name)
         }
     }

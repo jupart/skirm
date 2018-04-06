@@ -1,0 +1,20 @@
+{
+  "Fighter": (
+    description: "Fighter description",
+    equipment: [
+    ],
+    weapon: ".22 Rifle",
+    strength: 0,
+    dexterity: 0,
+    max_health: 0,
+  ),
+  "Sniper": (
+    description: "Sniper description",
+    equipment: [
+    ],
+    weapon: ".22 Rifle",
+    strength: 0,
+    dexterity: 0,
+    max_health: 0,
+  ),
+}

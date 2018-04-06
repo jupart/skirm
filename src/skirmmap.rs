@@ -4,12 +4,21 @@ use std::fmt::Debug;
 use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
 
-use ggez::GameResult;
+use specs::Entity;
+use ggez::{GameResult, GameError};
 use ascii::{ToAsciiChar, AsciiChar};
 use pathfinding::dijkstra;
 
+use item::Item;
+
 pub const TILE_WIDTH: i32 = 8;
 pub const TILE_HEIGHT: i32 = 14;
+
+#[derive(PartialEq, Eq, Debug)]
+pub enum MapError {
+    Occupied,
+    PointDoesNotExist,
+}
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub struct MapPoint {
@@ -69,6 +78,8 @@ pub enum TileType {
 }
 
 pub struct Tile {
+    pub occupant: Option<Entity>,
+    pub ground_occupant: Option<Item>,
     pub tile_type: TileType,
     pub glyph: &'static str,
 }
@@ -77,12 +88,16 @@ impl Tile {
     pub fn new(tile_type: TileType) -> Self {
         match tile_type {
             TileType::Wall => {
-                Self { tile_type, glyph: "#" }
+                Self { occupant: None, ground_occupant: None, tile_type, glyph: "#" }
             },
             TileType::Ground => {
-                Self { tile_type, glyph: "" }
+                Self { occupant: None, ground_occupant: None, tile_type, glyph: "" }
             }
         }
+    }
+
+    pub fn has_occupant(&self) -> bool {
+        self.occupant.is_some()
     }
 }
 
@@ -200,6 +215,27 @@ impl SkirmMap {
             }
         }
         has_sight
+    }
+
+    pub fn add_occupant(&mut self, ent: Entity, point: MapPoint) -> Result<(), MapError> {
+        let result;
+        if self.has_occupant(&point) {
+            result = Err(MapError::Occupied)
+        } else {
+            result = match self.map.get_mut(&point) {
+                Some(tile) => {
+                    tile.occupant = Some(ent);
+                    Ok(())
+                },
+                None => Err(MapError::PointDoesNotExist)
+            }
+        }
+
+        result
+    }
+
+    pub fn has_occupant(&self, point: &MapPoint) -> bool {
+        self.map.get(point).is_some()
     }
 }
 

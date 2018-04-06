@@ -1,7 +1,7 @@
 use ggez::{timer, event, graphics, Context, GameResult};
 use ggez::event::{Keycode, Mod, MouseButton};
 use ggez::graphics::{Point2, Rect};
-use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
+use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Index, Join};
 
 use std::collections::HashMap;
 use std::time::Duration;
@@ -20,7 +20,7 @@ use gui::{Gui};
 pub struct Game<'a, 'b> {
     pub world: World,
     pub player_count: usize,
-    pub player1: Entity,
+    pub p1_id: Index,
     pub gui: Gui,
     pub dispatcher: Dispatcher<'a, 'b>,
     pub has_focus: bool,
@@ -38,6 +38,7 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut asset_storage = AssetStorage::new(ctx)?;
         let item_factory = ItemFactory::new()?;
         let skirmer_factory = SkirmerFactory::new();
+        let mut skirmmap = SkirmMap::load("./resources/maps/test.skirm_map")?;
 
         asset_storage.load_images(ctx)?;
         asset_storage.load_sounds(ctx)?;
@@ -46,21 +47,22 @@ impl<'a, 'b> Game<'a, 'b> {
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
         // Create entities
-        let player1 = skirmer_factory.create_skirmer(
+        let p1_id = skirmer_factory.create_skirmer(
             64.0,
             14.0,
             &SkirmerType::Fighter,
             &item_factory,
+            &mut skirmmap,
             &mut world,
         );
 
-        skirmer_factory.create_skirmer(64.0, 40.0, &SkirmerType::Fighter, &item_factory, &mut world);
+        skirmer_factory.create_skirmer(64.0, 40.0, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world);
 
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
-        world.add_resource(PlayerInput::new(player1.id()));
-        world.add_resource(SkirmMap::load("./resources/maps/test.skirm_map")?);
+        world.add_resource(PlayerInput::new(p1_id));
+        world.add_resource(skirmmap);
 
         // Dispatch systems
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
@@ -77,7 +79,7 @@ impl<'a, 'b> Game<'a, 'b> {
         Ok(Self {
             world,
             player_count: pc,
-            player1,
+            p1_id,
             gui,
             dispatcher,
             has_focus: true,
@@ -104,7 +106,8 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let map = self.world.read_resource::<SkirmMap>();
 
         let pos_components = self.world.read::<PositionComp>();
-        let player_pos = pos_components.get(self.player1).unwrap();
+        let player_ent = (*self.world.entities()).join().nth(self.p1_id as usize).unwrap();
+        let player_pos = pos_components.get(player_ent).unwrap();
         let pos = MapPoint::new(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);

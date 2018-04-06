@@ -21,6 +21,7 @@ impl<'a> System<'a> for PositionSys {
     }
 }
 
+// An Input System that verifies and creates an entity's `current_action`
 pub struct PlayerInputSys;
 impl<'a> System<'a> for PlayerInputSys {
     type SystemData = (
@@ -29,11 +30,12 @@ impl<'a> System<'a> for PlayerInputSys {
         FetchMut<'a, PlayerInput>,
         WriteStorage<'a, ActionComp>,
         ReadStorage<'a, PositionComp>,
+        ReadStorage<'a, EquipmentComp>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, skirmmap, mut input, mut action_comp, position_comp) = data;
-        for (e, a, p) in (&*entities, &mut action_comp, &position_comp).join() {
+        let (entities, skirmmap, mut input, mut action_comp, position_comp, equipment_comp) = data;
+        for (e, a, p, equip) in (&*entities, &mut action_comp, &position_comp, &equipment_comp).join() {
             if input.id != e.id() || input.pending_command.is_none() || input.command_point.is_none() {
                 continue;
             }
@@ -64,6 +66,7 @@ impl<'a> System<'a> for PlayerInputSys {
     }
 }
 
+// Performs entities' `current_action`s
 pub struct ActionSys;
 impl ActionSys {
     fn position_close_to(&self, x1: f32, x2: f32) -> bool {
@@ -71,7 +74,6 @@ impl ActionSys {
         (x2 - fluff <= x1)
             && (x1 <= x2 + fluff)
     }
-
 }
 
 impl<'a> System<'a> for ActionSys {
@@ -80,13 +82,15 @@ impl<'a> System<'a> for ActionSys {
         ReadStorage<'a, StatsComp>,
         WriteStorage<'a, ActionComp>,
         WriteStorage<'a, PositionComp>,
+        ReadStorage<'a, EquipmentComp>,
+        Fetch<'a, SkirmMap>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (time, _stats, mut action_comp, mut position_comp) = data;
+        let (time, _stats, mut action_comp, mut position_comp, equipment, map) = data;
         let dt = time.delta.as_secs() as f32 + time.delta.subsec_nanos() as f32 * 1e-9;
 
-        for (a, p) in (&mut action_comp, &mut position_comp).join() {
+        for (a, p, e) in (&mut action_comp, &mut position_comp, &equipment).join() {
             let mut change_to = None;
 
             match a.current_action {
@@ -117,9 +121,8 @@ impl<'a> System<'a> for ActionSys {
                     }
                 },
                 Action::AttackAt(point) => {
-                    println!("Attack at {:?}", point);
-                    // check that attack hit something
-                    // apply damage
+                    // let intended_damage = e.weapon.attack(&point);
+                    // let entity at point know it was attacked
                     // draw attack
                     // play attack sound
                     change_to = Some(Action::Idle);

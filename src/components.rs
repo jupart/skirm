@@ -3,18 +3,19 @@ use specs::{VecStorage, World};
 use std::collections::HashMap;
 use std::time::Duration;
 
-use item::Item;
+use item::{Weapon, Item};
 use rendering::RenderType;
 use skirmmap::{SkirmMap, MapPoint};
 
 #[derive(Component)]
 pub struct EquipmentComp {
+    pub weapon: Weapon,
     pub items: Vec<Item>,
 }
 
 impl EquipmentComp {
-    pub fn new(items: Vec<Item>) -> Self {
-        Self { items }
+    pub fn new(weapon: Weapon, items: Vec<Item>) -> Self {
+        Self { weapon, items }
     }
 }
 

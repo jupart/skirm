@@ -75,20 +75,6 @@ impl Gui {
         }
 
         if input.pending_command.is_some() {
-            let x = 0.0;
-            let y = (ctx.conf.window_mode.height - TILE_HEIGHT as u32) as f32;
-            let point = graphics::Point2::new(x, y);
-            let word;
-            match input.pending_command.unwrap() {
-                PendingCommand::Move => {
-                    word = graphics::Text::new(ctx, "Move", &assets.font).unwrap();
-                },
-                PendingCommand::Attack => {
-                    word = graphics::Text::new(ctx, "Attack", &assets.font).unwrap();
-                },
-            }
-            graphics::draw(ctx, &word, point, 0.0).unwrap();
-
             self.draw_line_to_mouse(player_pos, input.pending_command.unwrap(), map, ctx);
         }
     }

@@ -1,11 +1,13 @@
-use specs::{Entity, World};
+use specs::{Index, World};
 
-use item::{Item, ItemFactory};
+use item::{Weapon, Item, ItemFactory};
 use components::*;
 use rendering::RenderType;
+use skirmmap::{SkirmMap, MapPoint};
 
 pub enum SkirmerType {
     Fighter,
+    Sniper,
 }
 
 pub struct SkirmerFactory;
@@ -21,24 +23,32 @@ impl SkirmerFactory {
         y: f32,
         skirmer: &SkirmerType,
         item_factory: &ItemFactory,
+        map: &mut SkirmMap,
         world: &mut World
-    ) -> Entity {
-        let equipment = self.get_skirmer_items(skirmer, item_factory);
+    ) -> Index {
+        let (weapon, items) = self.get_skirmer_items(skirmer, item_factory);
 
-        world.create_entity()
+        let ent = world.create_entity()
             .with(PositionComp::new(x, y))
             .with(RenderComp { render_type: RenderType::Glyph { id: "@" } })
             .with(StatsComp::default())
             .with(ActionComp::new())
-            .with(EquipmentComp::new(equipment))
-            .build()
+            .with(EquipmentComp::new(weapon, items))
+            .build();
+
+        map.add_occupant(ent, MapPoint::new(x as i32, y as i32));
+        ent.id()
     }
 
-    fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> Vec<Item> {
+    fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> (Weapon, Vec<Item>) {
         match skirmer {
             SkirmerType::Fighter => {
                 let weapon = factory.get_weapon(".22 Rifle");
-                vec![weapon]
+                (weapon, vec![])
+            },
+            SkirmerType::Sniper => {
+                let weapon = factory.get_weapon(".22 Rifle");
+                (weapon, vec![])
             }
         }
     }
