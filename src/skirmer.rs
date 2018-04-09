@@ -3,7 +3,7 @@ use specs::{Index, World};
 use item::{Weapon, Item, ItemFactory};
 use components::*;
 use rendering::RenderType;
-use skirmmap::{SkirmMap, MapPoint};
+use skirmmap::{SkirmMap, MapPoint, MapError};
 
 pub enum SkirmerType {
     Fighter,
@@ -25,7 +25,7 @@ impl SkirmerFactory {
         item_factory: &ItemFactory,
         map: &mut SkirmMap,
         world: &mut World
-    ) -> Index {
+    ) -> Result<Index, MapError> {
         let (weapon, items) = self.get_skirmer_items(skirmer, item_factory);
 
         let ent = world.create_entity()
@@ -36,8 +36,7 @@ impl SkirmerFactory {
             .with(EquipmentComp::new(weapon, items))
             .build();
 
-        map.add_occupant(ent, MapPoint::new(x as i32, y as i32));
-        ent.id()
+        map.add_occupant(ent, MapPoint::new(x as i32, y as i32)).map(|()| ent.id())
     }
 
     fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> (Weapon, Vec<Item>) {

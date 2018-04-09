@@ -5,7 +5,7 @@ use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
 
 use specs::Entity;
-use ggez::{GameResult, GameError};
+use ggez::{GameResult};
 use ascii::{ToAsciiChar, AsciiChar};
 use pathfinding::dijkstra;
 
@@ -235,7 +235,13 @@ impl SkirmMap {
     }
 
     pub fn has_occupant(&self, point: &MapPoint) -> bool {
-        self.map.get(point).is_some()
+        println!("checking for occupant at {:?}", point);
+        let tile = self.map.get(point);
+        if tile.is_some() {
+            tile.unwrap().has_occupant()
+        } else {
+            false
+        }
     }
 }
 

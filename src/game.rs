@@ -54,9 +54,9 @@ impl<'a, 'b> Game<'a, 'b> {
             &item_factory,
             &mut skirmmap,
             &mut world,
-        );
+        ).unwrap();
 
-        skirmer_factory.create_skirmer(64.0, 40.0, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world);
+        skirmer_factory.create_skirmer(64.0, 42.0, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world).unwrap();
 
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);

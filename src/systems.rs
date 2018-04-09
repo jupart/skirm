@@ -122,7 +122,9 @@ impl<'a> System<'a> for ActionSys {
                 },
                 Action::AttackAt(point) => {
                     // let intended_damage = e.weapon.attack(&point);
-                    // let entity at point know it was attacked
+                    if map.has_occupant(&point) {
+                        println!("Attacked");
+                    }
                     // draw attack
                     // play attack sound
                     change_to = Some(Action::Idle);
