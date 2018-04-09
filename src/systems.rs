@@ -39,8 +39,8 @@ impl<'a> System<'a> for PlayerInputSys {
             if input.id != e.id() || input.pending_command.is_none() || input.command_point.is_none() {
                 continue;
             }
-            let pos = MapPoint::new(p.x as i32, p.y as i32);
-            let to = input.command_point.unwrap();
+            let pos = MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32);
+            let to = input.command_point.map(|(x, y)| MapPoint::round_from_pixel_coord(x, y)).unwrap();
             match input.pending_command.unwrap() {
                 PendingCommand::Move => {
                     match MoveToPoint::new(pos, to, &*skirmmap) {
@@ -95,24 +95,22 @@ impl<'a> System<'a> for ActionSys {
 
             match a.current_action {
                 Action::MoveTo(ref mut move_to_point) => {
-                    let (x, y): (i32, i32);
-                    {
-                        let points_iter = &move_to_point.point_stack[0];
-                        x = points_iter.x;
-                        y = points_iter.y;
-                    }
+                    let (x, y) = {
+                        let points_iter = move_to_point.point_stack.get_mut(0).unwrap();
+                        points_iter.as_pixel_coord_tuple()
+                    };
                     let speed = 50.0;
 
-                    if self.position_close_to(p.x, x as f32)
-                    && self.position_close_to(p.y, y as f32) {
-                        p.x = x as f32;
-                        p.y = y as f32;
+                    if self.position_close_to(p.x, x)
+                    && self.position_close_to(p.y, y) {
+                        p.x = x;
+                        p.y = y;
                         move_to_point.point_stack.remove(0);
                         if move_to_point.point_stack.is_empty() {
                             change_to = Some(Action::Idle);
                         }
                     } else {
-                        let vec = (p.x - x as f32, p.y - y as f32);
+                        let vec = (p.x - x, p.y - y);
                         let mag = (vec.0.powf(2.0) + vec.1.powf(2.0)).sqrt();
                         let unit = (vec.0 / mag, vec.1 / mag);
                         let move_vec = (unit.0 * speed * dt, unit.1 * speed * dt);
@@ -179,12 +177,9 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
 
         // Draw map
         for (point, tile) in &map.map {
-            let x = point.x as f32;
-            let y = point.y as f32;
-
             // if not in viewport, continue
 
-            self.draw_glyph(tile.glyph, (x, y), &assets);
+            self.draw_glyph(tile.glyph, point.as_pixel_coord_tuple(), &assets);
         }
 
         // Draw entities

@@ -28,7 +28,7 @@ impl Gui {
         let mouse_pos = mouse::get_position(ctx).unwrap();
         let mouse_x = mouse_pos.x;
         let mouse_y = mouse_pos.y;
-        let mouse_tile = map.nearest_tile(mouse_x as i32, mouse_y as i32);
+        let mouse_tile = MapPoint::round_from_pixel_coord(mouse_x as i32, mouse_y as i32);
 
         let tiles_to_highlight = match mode {
             PendingCommand::Move => {
@@ -54,14 +54,16 @@ impl Gui {
             if !map.has_ground_at(tile) {
                 graphics::set_color(ctx, red).unwrap();
             }
-            let point = graphics::Point2::new(tile.x as f32, tile.y as f32);
+            let (x, y) = tile.as_pixel_coord_tuple();
+            let point = graphics::Point2::new(x, y);
             let rect = Rect::new(point.x, point.y, TILE_WIDTH as f32, TILE_HEIGHT as f32);
             graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();
         }
 
         // Draw last tile twice
         let tile = tiles_to_highlight.last().unwrap();
-        let point = graphics::Point2::new(tile.x as f32, tile.y as f32);
+        let (x, y) = tile.as_pixel_coord_tuple();
+        let point = graphics::Point2::new(x, y);
         let rect = Rect::new(point.x, point.y, TILE_WIDTH as f32, TILE_HEIGHT as f32);
         graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();
 

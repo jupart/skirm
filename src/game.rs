@@ -48,15 +48,15 @@ impl<'a, 'b> Game<'a, 'b> {
 
         // Create entities
         let p1_id = skirmer_factory.create_skirmer(
-            64.0,
-            14.0,
+            8,
+            1,
             &SkirmerType::Fighter,
             &item_factory,
             &mut skirmmap,
             &mut world,
         ).unwrap();
 
-        skirmer_factory.create_skirmer(64.0, 42.0, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world).unwrap();
+        skirmer_factory.create_skirmer(8, 4, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world).unwrap();
 
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);
@@ -108,7 +108,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let pos_components = self.world.read::<PositionComp>();
         let player_ent = (*self.world.entities()).join().nth(self.p1_id as usize).unwrap();
         let player_pos = pos_components.get(player_ent).unwrap();
-        let pos = MapPoint::new(player_pos.x as i32, player_pos.y as i32);
+        let pos = MapPoint::round_from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);
         {

@@ -6,6 +6,7 @@ extern crate serde;
 extern crate ron;
 extern crate ascii;
 extern crate pathfinding;
+extern crate line_drawing;
 
 #[macro_use]
 extern crate serde_derive;

@@ -19,8 +19,8 @@ impl SkirmerFactory {
 
     pub fn create_skirmer(
         &self,
-        x: f32,
-        y: f32,
+        tile_x: i32,
+        tile_y: i32,
         skirmer: &SkirmerType,
         item_factory: &ItemFactory,
         map: &mut SkirmMap,
@@ -28,6 +28,8 @@ impl SkirmerFactory {
     ) -> Result<Index, MapError> {
         let (weapon, items) = self.get_skirmer_items(skirmer, item_factory);
 
+        let tile_point = MapPoint::new(tile_x, tile_y);
+        let (x, y) = tile_point.as_pixel_coord_tuple();
         let ent = world.create_entity()
             .with(PositionComp::new(x, y))
             .with(RenderComp { render_type: RenderType::Glyph { id: "@" } })
@@ -36,7 +38,7 @@ impl SkirmerFactory {
             .with(EquipmentComp::new(weapon, items))
             .build();
 
-        map.add_occupant(ent, MapPoint::new(x as i32, y as i32)).map(|()| ent.id())
+        map.add_occupant(ent, tile_point).map(|()| ent.id())
     }
 
     fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> (Weapon, Vec<Item>) {
