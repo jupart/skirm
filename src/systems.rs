@@ -35,34 +35,39 @@ impl<'a> System<'a> for PlayerInputSys {
 
     fn run(&mut self, data: Self::SystemData) {
         let (entities, skirmmap, mut input, mut action_comp, position_comp, equipment_comp) = data;
-        for (e, a, p, equip) in (&*entities, &mut action_comp, &position_comp, &equipment_comp).join() {
-            if input.id != e.id() || input.pending_command.is_none() || input.command_point.is_none() {
-                continue;
-            }
-            let pos = MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32);
-            let to = input.command_point.map(|(x, y)| MapPoint::round_from_pixel_coord(x, y)).unwrap();
-            match input.pending_command.unwrap() {
-                PendingCommand::Move => {
-                    match MoveToPoint::new(pos, to, &*skirmmap) {
-                        Ok(move_to_point) => {
-                            a.current_action = Action::MoveTo(move_to_point);
-                        },
-                        Err(()) => {
-                            a.current_action = Action::Idle;
-                        },
-                    }
-                },
-                PendingCommand::Attack => {
-                    if skirmmap.has_line_of_sight(&pos, &to) {
-                        a.current_action = Action::AttackAt(to);
-                    } else {
+
+        if input.pending_command.is_none() || input.command_point.is_none() {
+            return;
+        }
+
+        let player_ent = entities.join().nth(input.id as usize).unwrap();
+        let p = position_comp.get(player_ent).unwrap();
+        let e = equipment_comp.get(player_ent).unwrap();
+        let a = action_comp.get_mut(player_ent).unwrap();
+
+        let pos = MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32);
+        let to = input.command_point.map(|(x, y)| MapPoint::round_from_pixel_coord(x, y)).unwrap();
+        match input.pending_command.unwrap() {
+            PendingCommand::Move => {
+                match MoveToPoint::new(pos, to, &*skirmmap) {
+                    Ok(move_to_point) => {
+                        a.current_action = Action::MoveTo(move_to_point);
+                    },
+                    Err(()) => {
                         a.current_action = Action::Idle;
-                    }
+                    },
+                }
+            },
+            PendingCommand::Attack => {
+                if skirmmap.has_line_of_sight(&pos, &to) {
+                    a.current_action = Action::AttackAt(to);
+                } else {
+                    a.current_action = Action::Idle;
                 }
             }
-            input.pending_command = None;
-            input.command_point = None;
         }
+        input.pending_command = None;
+        input.command_point = None;
     }
 }
 
