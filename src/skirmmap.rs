@@ -93,17 +93,17 @@ pub struct Tile {
     pub occupant: Option<Entity>,
     pub ground_occupant: Option<Item>,
     pub tile_type: TileType,
-    pub glyph: &'static str,
+    pub glyph: char,
 }
 
 impl Tile {
     pub fn new(tile_type: TileType) -> Self {
         match tile_type {
             TileType::Wall => {
-                Self { occupant: None, ground_occupant: None, tile_type, glyph: "#" }
+                Self { occupant: None, ground_occupant: None, tile_type, glyph: '#' }
             },
             TileType::Ground => {
-                Self { occupant: None, ground_occupant: None, tile_type, glyph: "" }
+                Self { occupant: None, ground_occupant: None, tile_type, glyph: ' ' }
             }
         }
     }

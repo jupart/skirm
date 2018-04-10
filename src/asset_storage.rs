@@ -1,13 +1,14 @@
 use std::fs::DirEntry;
 
 use ggez::{audio, GameResult, Context};
-use ggez::graphics::{Image, Font};
+use ggez::graphics::{Image, Font, Text};
 use std::collections::HashMap;
 
 pub struct AssetStorage {
     pub images: HashMap<String, Image>,
     pub sounds: HashMap<String, audio::Source>,
     pub font: Font,
+    pub glyphs: HashMap<char, Text>,
 }
 
 impl AssetStorage {
@@ -15,11 +16,18 @@ impl AssetStorage {
         let map1 = HashMap::new();
         let map2 = HashMap::new();
         let font = Font::new(ctx, "/fonts/FiraMono-Medium.ttf", 14)?;
+        let mut glyphs = HashMap::new();
+
+        // Leading space is intentional
+        for c in " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()[]{}".chars() {
+            glyphs.insert(c, Text::new(ctx, &c.to_string(), &font).unwrap());
+        }
 
         Ok(Self {
             images: map1,
             sounds: map2,
             font,
+            glyphs,
         })
     }
 

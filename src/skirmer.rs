@@ -32,7 +32,7 @@ impl SkirmerFactory {
         let (x, y) = tile_point.as_pixel_coord_tuple();
         let ent = world.create_entity()
             .with(PositionComp::new(x, y))
-            .with(RenderComp { render_type: RenderType::Glyph { id: "@" } })
+            .with(RenderComp { render_type: RenderType::Glyph { id: '@' } })
             .with(StatsComp::default())
             .with(ActionComp::new())
             .with(EquipmentComp::new(weapon, items))

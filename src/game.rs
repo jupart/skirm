@@ -91,6 +91,11 @@ impl<'a, 'b> Game<'a, 'b> {
 impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         if self.has_focus && !self.paused {
+
+            if timer::get_ticks(ctx) % 100 == 0 {
+                println!("FPS: {}", timer::get_fps(ctx));
+            }
+
             let dt = &timer::get_delta(ctx);
             self.world.write_resource::<DeltaTime>().delta = *dt;
             self.dispatcher.dispatch(&self.world.res);

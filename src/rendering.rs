@@ -5,6 +5,6 @@ pub const BLACK: Color = Color { r: 0.157, g: 0.157, b: 0.157, a: 1.0 };
 
 #[derive(Debug, Copy, Clone)]
 pub enum RenderType {
-    Glyph { id: &'static str },
+    Glyph { id: char },
     Image { id: &'static str },
 }

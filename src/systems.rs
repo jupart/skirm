@@ -161,11 +161,11 @@ impl<'c> RenderSys<'c> {
         }
     }
 
-    fn draw_glyph(&mut self, id: &'static str, pos: (f32, f32), assets: &AssetStorage) {
+    fn draw_glyph(&mut self, id: char, pos: (f32, f32), assets: &AssetStorage) {
         let point = graphics::Point2::new(pos.0, pos.1);
-        let glyph = graphics::Text::new(self.ctx, id, &assets.font).unwrap();
+        let glyph = assets.glyphs.get(&id).unwrap();
         graphics::set_color(self.ctx, WHITE).unwrap();
-        graphics::draw(self.ctx, &glyph, point, 0.0).unwrap();
+        graphics::draw(self.ctx, glyph, point, 0.0).unwrap();
     }
 }
 
