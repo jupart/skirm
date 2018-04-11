@@ -36,9 +36,9 @@ impl AssetStorage {
         let dirs = fs::read_dir("./resources/sounds")?;
 
         for directory in dirs {
-            let (name, ggez_path_str) = self.get_resource(&directory.unwrap());
-            let sound = audio::Source::new(ctx, ggez_path_str)?;
-            self.sounds.insert(name, sound);
+            // let (name, ggez_path_str) = self.get_resource(&directory.unwrap());
+            // let sound = audio::Source::new(ctx, ggez_path_str)?;
+            // self.sounds.insert(name, sound);
         }
 
         Ok(())
