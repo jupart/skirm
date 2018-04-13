@@ -54,7 +54,7 @@ impl Gui {
             if !map.has_ground_at(tile) {
                 graphics::set_color(ctx, red).unwrap();
             }
-            let (x, y) = tile.as_pixel_coord_tuple();
+            let (x, y) = tile.as_float_coord_tuple();
             let point = graphics::Point2::new(x, y);
             let rect = Rect::new(point.x, point.y, TILE_WIDTH as f32, TILE_HEIGHT as f32);
             graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();
@@ -62,7 +62,7 @@ impl Gui {
 
         // Draw last tile twice
         let tile = tiles_to_highlight.last().unwrap();
-        let (x, y) = tile.as_pixel_coord_tuple();
+        let (x, y) = tile.as_float_coord_tuple();
         let point = graphics::Point2::new(x, y);
         let rect = Rect::new(point.x, point.y, TILE_WIDTH as f32, TILE_HEIGHT as f32);
         graphics::rectangle(ctx, DrawMode::Fill, rect).unwrap();

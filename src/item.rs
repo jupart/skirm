@@ -19,7 +19,7 @@ pub struct Weapon {
 }
 
 impl Weapon {
-    pub fn attack(&self, distance: u8) -> u8 {
+    pub fn attack(&self, _distance: u8) -> u8 {
         self.damage
     }
 }

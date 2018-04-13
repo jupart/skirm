@@ -31,15 +31,15 @@ impl AssetStorage {
         })
     }
 
-    pub fn load_sounds(&mut self, ctx: &mut Context) -> GameResult<()> {
-        use std::fs;
-        let dirs = fs::read_dir("./resources/sounds")?;
+    pub fn load_sounds(&mut self, _ctx: &mut Context) -> GameResult<()> {
+        // use std::fs;
+        // let dirs = fs::read_dir("./resources/sounds")?;
 
-        for directory in dirs {
+        // for directory in dirs {
             // let (name, ggez_path_str) = self.get_resource(&directory.unwrap());
             // let sound = audio::Source::new(ctx, ggez_path_str)?;
             // self.sounds.insert(name, sound);
-        }
+        // }
 
         Ok(())
     }

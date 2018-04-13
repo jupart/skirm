@@ -28,6 +28,7 @@ mod item;
 mod skirmmap;
 mod input;
 mod gui;
+mod visual_effects;
 
 use game::Game;
 

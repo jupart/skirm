@@ -9,6 +9,7 @@ use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use rendering::{RenderType, WHITE};
 use skirmmap::{SkirmMap, MapPoint};
+use visual_effects::{GunshotEffect, GunshotEffects};
 
 pub struct PositionSys;
 impl<'a> System<'a> for PositionSys {
@@ -34,7 +35,7 @@ impl<'a> System<'a> for PlayerInputSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, skirmmap, mut input, mut action_comp, position_comp, equipment_comp) = data;
+        let (entities, skirmmap, mut input, mut action_comp, position_comp, _equipment_comp) = data;
 
         if input.pending_command.is_none() || input.command_point.is_none() {
             return;
@@ -42,7 +43,7 @@ impl<'a> System<'a> for PlayerInputSys {
 
         let player_ent = entities.join().nth(input.id as usize).unwrap();
         let p = position_comp.get(player_ent).unwrap();
-        let e = equipment_comp.get(player_ent).unwrap();
+        // let e = equipment_comp.get(player_ent).unwrap();
         let a = action_comp.get_mut(player_ent).unwrap();
 
         let pos = MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32);
@@ -79,6 +80,43 @@ impl ActionSys {
         (x2 - fluff <= x1)
             && (x1 <= x2 + fluff)
     }
+
+    fn handle_move(&self, mtp: &mut MoveToPoint, pos: &mut PositionComp, dt: f32) -> Option<Action> {
+        let mut change_to = None;
+
+        let (x, y) = {
+            let points_iter = mtp.point_stack.get_mut(0).unwrap();
+            points_iter.as_float_coord_tuple()
+        };
+        let speed = 50.0;
+
+        if self.position_close_to(pos.x, x)
+        && self.position_close_to(pos.y, y) {
+            pos.x = x;
+            pos.y = y;
+            mtp.point_stack.remove(0);
+            if mtp.point_stack.is_empty() {
+                change_to = Some(Action::Idle);
+            }
+        } else {
+            let vec = (pos.x - x, pos.y - y);
+            let mag = (vec.0.powf(2.0) + vec.1.powf(2.0)).sqrt();
+            let unit = (vec.0 / mag, vec.1 / mag);
+            let move_vec = (unit.0 * speed * dt, unit.1 * speed * dt);
+            pos.x -= move_vec.0;
+            pos.y -= move_vec.1;
+        }
+
+        change_to
+    }
+
+    fn handle_attack(&self, from: &MapPoint, to: &MapPoint, _equipment: &EquipmentComp, map: &SkirmMap, effects: &mut GunshotEffects) -> Option<Action> {
+        if map.has_occupant(to) {
+            effects.effects.push(GunshotEffect::new(from.clone(), to.clone()));
+            // play attack sound
+        }
+        Some(Action::Idle)
+    }
 }
 
 impl<'a> System<'a> for ActionSys {
@@ -89,51 +127,21 @@ impl<'a> System<'a> for ActionSys {
         WriteStorage<'a, PositionComp>,
         ReadStorage<'a, EquipmentComp>,
         Fetch<'a, SkirmMap>,
+        FetchMut<'a, GunshotEffects>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (time, _stats, mut action_comp, mut position_comp, equipment, map) = data;
+        let (time, _stats, mut action_comp, mut position_comp, equipment, map, mut gun_effects) = data;
         let dt = time.delta.as_secs() as f32 + time.delta.subsec_nanos() as f32 * 1e-9;
 
         for (a, p, e) in (&mut action_comp, &mut position_comp, &equipment).join() {
-            let mut change_to = None;
-
-            match a.current_action {
-                Action::MoveTo(ref mut move_to_point) => {
-                    let (x, y) = {
-                        let points_iter = move_to_point.point_stack.get_mut(0).unwrap();
-                        points_iter.as_pixel_coord_tuple()
-                    };
-                    let speed = 50.0;
-
-                    if self.position_close_to(p.x, x)
-                    && self.position_close_to(p.y, y) {
-                        p.x = x;
-                        p.y = y;
-                        move_to_point.point_stack.remove(0);
-                        if move_to_point.point_stack.is_empty() {
-                            change_to = Some(Action::Idle);
-                        }
-                    } else {
-                        let vec = (p.x - x, p.y - y);
-                        let mag = (vec.0.powf(2.0) + vec.1.powf(2.0)).sqrt();
-                        let unit = (vec.0 / mag, vec.1 / mag);
-                        let move_vec = (unit.0 * speed * dt, unit.1 * speed * dt);
-                        p.x -= move_vec.0;
-                        p.y -= move_vec.1;
-                    }
-                },
+            let change_to = match a.current_action {
+                Action::MoveTo(ref mut move_to_point) => self.handle_move(move_to_point, p, dt),
                 Action::AttackAt(point) => {
-                    // let intended_damage = e.weapon.attack(&point);
-                    if map.has_occupant(&point) {
-                        println!("Attacked");
-                    }
-                    // draw attack
-                    // play attack sound
-                    change_to = Some(Action::Idle);
-                }
-                Action::Idle => (),
-            }
+                    self.handle_attack(&MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32), &point, e, &map, &mut gun_effects)
+                },
+                Action::Idle => None,
+            };
 
             if change_to.is_some() {
                 a.current_action = change_to.unwrap();
@@ -184,7 +192,7 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
         for (point, tile) in &map.map {
             // if not in viewport, continue
 
-            self.draw_glyph(tile.glyph, point.as_pixel_coord_tuple(), &assets);
+            self.draw_glyph(tile.glyph, point.as_float_coord_tuple(), &assets);
         }
 
         // Draw entities

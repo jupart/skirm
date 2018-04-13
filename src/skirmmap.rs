@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 use specs::Entity;
 use ggez::{GameResult};
+use ggez::graphics::Point2;
 use ascii::{ToAsciiChar, AsciiChar};
 use pathfinding::dijkstra;
 use line_drawing;
@@ -32,7 +33,7 @@ impl MapPoint {
         Self { x, y }
     }
 
-    pub fn as_pixel_coord_tuple(&self) -> (f32, f32) {
+    pub fn as_float_coord_tuple(&self) -> (f32, f32) {
         ((self.x * TILE_WIDTH) as f32, (self.y * TILE_HEIGHT) as f32)
     }
 
@@ -80,6 +81,21 @@ impl MapPoint {
 
     pub fn as_tuple(&self) -> (i32, i32) {
         (self.x, self.y)
+    }
+
+    pub fn center_as_point2(&self) -> Point2 {
+        let pixel = self.as_float_coord_tuple();
+        let half_x = TILE_WIDTH / 2;
+        let half_y = TILE_HEIGHT / 2;
+        Point2::new(pixel.0 + (half_x as f32), pixel.1 + (half_y as f32))
+    }
+
+    pub fn as_pixel_coord_tuple(&self) -> (i32, i32) {
+        (self.x * TILE_WIDTH, self.y * TILE_HEIGHT)
+    }
+
+    pub fn center(&self) -> (i32, i32) {
+        (self.x * TILE_WIDTH + TILE_WIDTH / 2, self.y * TILE_HEIGHT + TILE_HEIGHT / 2)
     }
 }
 
@@ -203,4 +219,8 @@ impl SkirmMap {
 
 pub fn tile_distance(p1: &MapPoint, p2: MapPoint) -> u16 {
     (((p1.x - p2.x).pow(2) + (p1.y - p2.y).pow(2)) as f64).sqrt() as u16
+}
+
+pub fn pixel_distance(p1: (i32, i32), p2: (i32, i32)) -> u16 {
+    (((p1.0 - p2.0).pow(2) + (p1.1 - p2.1).pow(2)) as f64).sqrt() as u16
 }

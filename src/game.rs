@@ -16,6 +16,7 @@ use item::ItemFactory;
 use skirmer::{SkirmerFactory, SkirmerType};
 use skirmmap::{MapPoint, SkirmMap};
 use gui::{Gui};
+use visual_effects::{GunshotEffect, GunshotEffects};
 
 pub struct Game<'a, 'b> {
     pub world: World,
@@ -58,11 +59,14 @@ impl<'a, 'b> Game<'a, 'b> {
 
         skirmer_factory.create_skirmer(8, 4, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world).unwrap();
 
+        let gunshot_effects: Vec<GunshotEffect> = Vec::new();
+
         // Add specs shared resources
         world.add_resource::<AssetStorage>(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
         world.add_resource(PlayerInput::new(p1_id));
         world.add_resource(skirmmap);
+        world.add_resource(GunshotEffects { effects: gunshot_effects });
 
         // Dispatch systems
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
@@ -86,13 +90,20 @@ impl<'a, 'b> Game<'a, 'b> {
             paused: false,
         })
     }
+
+    fn draw_effects(&self, ctx: &mut Context, gun_effects: &mut Vec<GunshotEffect>) {
+        for effect in &mut *gun_effects {
+            effect.draw(ctx);
+        }
+        gun_effects.retain(|effect| !effect.finished());
+    }
 }
 
 impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         if self.has_focus && !self.paused {
 
-            if timer::get_ticks(ctx) % 100 == 0 {
+            if timer::get_ticks(ctx) % 50 == 0 {
                 println!("FPS: {}", timer::get_fps(ctx));
             }
 
@@ -109,6 +120,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let input = self.world.read_resource::<PlayerInput>();
         let assets = self.world.read_resource::<AssetStorage>();
         let map = self.world.read_resource::<SkirmMap>();
+        let mut gun_effects = self.world.write_resource::<GunshotEffects>();
 
         let pos_components = self.world.read::<PositionComp>();
         let player_ent = (*self.world.entities()).join().nth(self.p1_id as usize).unwrap();
@@ -116,11 +128,17 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let pos = MapPoint::round_from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);
+
+        // Entity rendering via RenderSys
         {
             let mut rs = RenderSys::new(ctx);
             rs.run_now(&self.world.res);
         }
 
+        // Effects rendering
+        self.draw_effects(ctx, &mut gun_effects.effects);
+
+        // Gui rendering
         self.gui.draw(&pos, &input, &assets, &*map, ctx);
 
         graphics::present(ctx);

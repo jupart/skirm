@@ -29,7 +29,7 @@ impl SkirmerFactory {
         let (weapon, items) = self.get_skirmer_items(skirmer, item_factory);
 
         let tile_point = MapPoint::new(tile_x, tile_y);
-        let (x, y) = tile_point.as_pixel_coord_tuple();
+        let (x, y) = tile_point.as_float_coord_tuple();
         let ent = world.create_entity()
             .with(PositionComp::new(x, y))
             .with(RenderComp { render_type: RenderType::Glyph { id: '@' } })
@@ -43,11 +43,11 @@ impl SkirmerFactory {
 
     fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> (Weapon, Vec<Item>) {
         match skirmer {
-            SkirmerType::Fighter => {
+            &SkirmerType::Fighter => {
                 let weapon = factory.get_weapon(".22 Rifle");
                 (weapon, vec![])
             },
-            SkirmerType::Sniper => {
+            &SkirmerType::Sniper => {
                 let weapon = factory.get_weapon(".22 Rifle");
                 (weapon, vec![])
             }
