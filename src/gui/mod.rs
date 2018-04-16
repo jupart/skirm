@@ -28,7 +28,7 @@ impl Gui {
         let mouse_pos = mouse::get_position(ctx).unwrap();
         let mouse_x = mouse_pos.x;
         let mouse_y = mouse_pos.y;
-        let mouse_tile = MapPoint::round_from_pixel_coord(mouse_x as i32, mouse_y as i32);
+        let mouse_tile = MapPoint::from_pixel_coord(mouse_x as i32, mouse_y as i32);
 
         let tiles_to_highlight = match mode {
             PendingCommand::Move => {

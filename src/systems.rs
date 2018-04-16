@@ -46,8 +46,8 @@ impl<'a> System<'a> for PlayerInputSys {
         // let e = equipment_comp.get(player_ent).unwrap();
         let a = action_comp.get_mut(player_ent).unwrap();
 
-        let pos = MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32);
-        let to = input.command_point.map(|(x, y)| MapPoint::round_from_pixel_coord(x, y)).unwrap();
+        let pos = MapPoint::from_pixel_coord(p.x as i32, p.y as i32);
+        let to = input.command_point.map(|(x, y)| MapPoint::from_pixel_coord(x, y)).unwrap();
         match input.pending_command.unwrap() {
             PendingCommand::Move => {
                 match MoveToPoint::new(pos, to, &*skirmmap) {
@@ -138,7 +138,7 @@ impl<'a> System<'a> for ActionSys {
             let change_to = match a.current_action {
                 Action::MoveTo(ref mut move_to_point) => self.handle_move(move_to_point, p, dt),
                 Action::AttackAt(point) => {
-                    self.handle_attack(&MapPoint::round_from_pixel_coord(p.x as i32, p.y as i32), &point, e, &map, &mut gun_effects)
+                    self.handle_attack(&MapPoint::from_pixel_coord(p.x as i32, p.y as i32), &point, e, &map, &mut gun_effects)
                 },
                 Action::Idle => None,
             };

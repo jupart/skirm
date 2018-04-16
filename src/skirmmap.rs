@@ -37,7 +37,7 @@ impl MapPoint {
         ((self.x * TILE_WIDTH) as f32, (self.y * TILE_HEIGHT) as f32)
     }
 
-    pub fn round_from_pixel_coord(x: i32, y: i32) -> Self {
+    pub fn from_pixel_coord(x: i32, y: i32) -> Self {
         let tile_index_x = x / TILE_WIDTH;
         let tile_index_y = y / TILE_HEIGHT;
         MapPoint::new(tile_index_x, tile_index_y)

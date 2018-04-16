@@ -125,7 +125,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let pos_components = self.world.read::<PositionComp>();
         let player_ent = (*self.world.entities()).join().nth(self.p1_id as usize).unwrap();
         let player_pos = pos_components.get(player_ent).unwrap();
-        let pos = MapPoint::round_from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
+        let pos = MapPoint::from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);
 
