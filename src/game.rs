@@ -73,6 +73,7 @@ impl<'a, 'b> Game<'a, 'b> {
             .add(ActionSys, "action", &[])
             .add(PlayerInputSys, "player_input", &[])
             .add(PositionSys, "position", &[])
+            .add(StatsSys, "stats", &[])
             .add(SoundSys, "sound", &[])
             .build();
 

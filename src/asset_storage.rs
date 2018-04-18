@@ -22,7 +22,6 @@ impl AssetStorage {
         for c in " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()[]{}".chars() {
             glyphs.insert(c, Text::new(ctx, &c.to_string(), &font).unwrap());
         }
-        println!("test");
 
         Ok(Self {
             images: map1,

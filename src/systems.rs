@@ -1,15 +1,37 @@
 // use std::time::Duration;
 
 use ggez::{graphics, Context};
-use specs::{Entities, Fetch, FetchMut, System, ReadStorage, WriteStorage, Join};
+use specs::{Entity, Entities, Fetch, FetchMut, System, ReadStorage, WriteStorage, Join};
 
 use asset_storage::AssetStorage;
 use components::*;
 use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use rendering::{RenderType, WHITE};
-use skirmmap::{SkirmMap, MapPoint};
+use skirmmap::{SkirmMap, MapPoint, tile_distance};
 use visual_effects::{GunshotEffect, GunshotEffects};
+use item::{Weapon};
+
+pub struct StatsSys;
+impl<'a> System<'a> for StatsSys {
+    type SystemData = (
+        Entities<'a>,
+        WriteStorage<'a, StatsComp>,
+    );
+
+    fn run(&mut self, data: Self::SystemData) {
+        let (entities, stats) = data;
+        for ent in entities.join() {
+            let ent_stat = stats.get(ent).unwrap();
+            if ent_stat.health == 0 {
+                match entities.delete(ent) {
+                    Err(_e) => (),
+                    _ => (),
+                }
+            }
+        }
+    }
+}
 
 pub struct PositionSys;
 impl<'a> System<'a> for PositionSys {
@@ -110,19 +132,29 @@ impl ActionSys {
         change_to
     }
 
-    fn handle_attack(&self, from: &MapPoint, to: &MapPoint, _equipment: &EquipmentComp, map: &SkirmMap, effects: &mut GunshotEffects) -> Option<Action> {
+    fn handle_attack(&self, from: &MapPoint, to: &MapPoint, equipment: &EquipmentComp, map: &SkirmMap, effects: &mut GunshotEffects, stats: &mut WriteStorage<StatsComp>) -> Option<Action> {
         if map.has_occupant(to) {
             effects.effects.push(GunshotEffect::new(from.clone(), to.clone()));
             // play attack sound
+            self.apply_damage(map.get_occupant(to).unwrap(), &equipment.weapon, tile_distance(from, *to), stats);
         }
         Some(Action::Idle)
+    }
+
+    fn apply_damage(&self, ent: Entity, _item: &Weapon, _distance: u16, stats: &mut WriteStorage<StatsComp>) {
+        let ent_stats = stats.get_mut(ent).unwrap();
+        if ent_stats.health < 50 {
+            ent_stats.health = 0;
+        } else {
+            ent_stats.health -= 50;
+        }
     }
 }
 
 impl<'a> System<'a> for ActionSys {
     type SystemData = (
         Fetch<'a, DeltaTime>,
-        ReadStorage<'a, StatsComp>,
+        WriteStorage<'a, StatsComp>,
         WriteStorage<'a, ActionComp>,
         WriteStorage<'a, PositionComp>,
         ReadStorage<'a, EquipmentComp>,
@@ -131,14 +163,14 @@ impl<'a> System<'a> for ActionSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (time, _stats, mut action_comp, mut position_comp, equipment, map, mut gun_effects) = data;
+        let (time, mut stats, mut action_comp, mut position_comp, equipment, map, mut gun_effects) = data;
         let dt = time.delta.as_secs() as f32 + time.delta.subsec_nanos() as f32 * 1e-9;
 
         for (a, p, e) in (&mut action_comp, &mut position_comp, &equipment).join() {
             let change_to = match a.current_action {
                 Action::MoveTo(ref mut move_to_point) => self.handle_move(move_to_point, p, dt),
                 Action::AttackAt(point) => {
-                    self.handle_attack(&MapPoint::from_pixel_coord(p.x as i32, p.y as i32), &point, e, &map, &mut gun_effects)
+                    self.handle_attack(&MapPoint::from_pixel_coord(p.x as i32, p.y as i32), &point, e, &map, &mut gun_effects, &mut stats)
                 },
                 Action::Idle => None,
             };

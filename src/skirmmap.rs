@@ -215,6 +215,10 @@ impl SkirmMap {
             false
         }
     }
+
+    pub fn get_occupant(&self, point: &MapPoint) -> Option<Entity> {
+        Some(self.map.get(point).unwrap().occupant.unwrap())
+    }
 }
 
 pub fn tile_distance(p1: &MapPoint, p2: MapPoint) -> u16 {
