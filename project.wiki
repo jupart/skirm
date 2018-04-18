@@ -1,4 +1,4 @@
-=== Skirm ===
+== Skirm Design ==
 Turn-based tactical modern warfare simulator in ASCII, top down format, built
 with Rust.
 
@@ -55,15 +55,87 @@ think we can track bone and skin/muscle information to have fights that are
 
 === Gear ===
  * Gear should be real-world stuff: guns, melee weapons, tools, armor, etc. Should
-   be defined via .json.
+   be defined via .ron
  * Display gear images with `txtpic` or similar tool.
 
 === Drawing ===
  * Use SDL2 or `ggez` to draw fonts. Similar to COGMIND, use square font for play
    area and regular sized monospace for interface.
  * For multi-z-level maps, display similar to TWBT DF, with "fog" making each
-   lower level more and more hazy.
+   lower level more and more hazy and shadows at visible z-level changes.
  * Tile based, drawn on a grid
  * Smooth movement between grid tiles, fixed location endpoints on grid
 
+=== Visual Effects ===
+ * Bullet
+ * Explosion
+ * Shield
+ * Blood
+ * Excrement? (vomit, piss, feces, due to pain?)
+
 === Sounds ===
+ * Ambient
+ * Gunshot
+     * Single fire
+     * Burst fire
+ * Explosion
+ * Taken damage
+     * Armored
+     * Unarmored
+ * Walk
+ * Crawl
+ * Run
+ * Melee
+     * Pierce
+     * Slash
+     * Blunt
+
+=== Interactions with Map ===
+ * Shoot through walls
+ * Explosions remove walls
+ * Dig hole
+ * Build barricade
+
+=== Ambient ===
+ * Bystanders in populated areas
+ * Animals in rural areas
+
+== Project Work ==
+ * [ ] Menus
+ * [ ] Movement
+     * [ ] Move speeds
+     * [ ] Climbing
+     * [ ] Jumping
+ * [ ] Action
+     * [ ] Fallout/DF style attacks
+ * [ ] Character/Stats
+ * [ ] Equipment
+ * [ ] Map
+     * [ ] 3d
+     * [ ] Shoot through walls
+     * [ ] Explosions remove walls
+     * [ ] Dig hole
+     * [ ] Build barricade
+ * [ ] Effects
+     * [ ] Explosion
+     * [ ] Shield
+     * [ ] Blood
+ * [ ] Sound
+     * [ ] Ambient
+     * [ ] Gunshot
+         * [ ] Single fire
+         * [ ] Burst fire
+     * [ ] Explosion
+     * [ ] Taken damage
+         * [ ] Armored
+         * [ ] Unarmored
+     * [ ] Walk
+     * [ ] Crawl
+     * [ ] Run
+     * [ ] Melee
+         * [ ] Pierce
+         * [ ] Slash
+         * [ ] Blunt
+ * [ ] World building
+     * [ ] Bystanders in populated areas
+     * [ ] Animals in rural areas
