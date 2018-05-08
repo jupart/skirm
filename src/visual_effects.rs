@@ -3,7 +3,7 @@ use ggez::graphics;
 use ggez::graphics::{MeshBuilder, Point2};
 use line_drawing;
 
-use skirmmap::{MapPoint, pixel_distance};
+use map::{MapPoint, pixel_distance};
 
 const DISTANCE_PER_DRAW: u8 = 10;
 

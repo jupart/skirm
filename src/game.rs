@@ -14,7 +14,7 @@ use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use item::ItemFactory;
 use skirmer::{SkirmerFactory, SkirmerType};
-use skirmmap::{MapPoint, SkirmMap};
+use map::{MapPoint, SkirmMap};
 use gui::{Gui};
 use visual_effects::{GunshotEffect, GunshotEffects};
 

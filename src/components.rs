@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use item::{Weapon, Item};
 use rendering::RenderType;
-use skirmmap::{SkirmMap, MapPoint};
+use map::{SkirmMap, MapPoint};
 
 #[derive(Component)]
 pub struct EquipmentComp {

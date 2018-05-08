@@ -8,7 +8,7 @@ use components::*;
 use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use rendering::{RenderType, WHITE};
-use skirmmap::{SkirmMap, MapPoint, tile_distance};
+use map::{SkirmMap, MapPoint, tile_distance};
 use visual_effects::{GunshotEffect, GunshotEffects};
 use item::{Weapon};
 

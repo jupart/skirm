@@ -25,7 +25,7 @@ mod resources;
 mod rendering;
 mod skirmer;
 mod item;
-mod skirmmap;
+mod map;
 mod input;
 mod gui;
 mod visual_effects;

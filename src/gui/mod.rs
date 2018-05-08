@@ -7,7 +7,7 @@ use ggez::mouse;
 use rendering::{WHITE, BLACK};
 use asset_storage::AssetStorage;
 use input::{PendingCommand, PlayerInput};
-use skirmmap::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT};
+use map::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT};
 use self::widgets::{Widget, Button, PosHint};
 
 fn simple_callback() {

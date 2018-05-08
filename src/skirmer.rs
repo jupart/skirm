@@ -3,7 +3,7 @@ use specs::{Index, World};
 use item::{Weapon, Item, ItemFactory};
 use components::*;
 use rendering::RenderType;
-use skirmmap::{SkirmMap, MapPoint, MapError};
+use map::{SkirmMap, MapPoint, MapError};
 
 pub enum SkirmerType {
     Fighter,
