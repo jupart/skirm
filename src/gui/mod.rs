@@ -120,7 +120,6 @@ fn main_gui_state_widgets(ctx: &Context) -> Vec<Box<Widget>> {
         WHITE,
         BLACK,
         String::from("Clickme"),
-        Box::new(simple_callback),
         Some(PosHint { x: 0.0, y: 1.0 }),
         ctx,
     )));
@@ -130,7 +129,6 @@ fn main_gui_state_widgets(ctx: &Context) -> Vec<Box<Widget>> {
         WHITE,
         BLACK,
         String::from("Clickme2"),
-        Box::new(simple_callback),
         Some(PosHint { x: 0.5, y: 1.0 }),
         ctx,
     )));
@@ -140,7 +138,6 @@ fn main_gui_state_widgets(ctx: &Context) -> Vec<Box<Widget>> {
         WHITE,
         BLACK,
         String::from("Clickme3"),
-        Box::new(simple_callback),
         Some(PosHint { x: 1.0, y: 1.0 }),
         ctx,
     )));

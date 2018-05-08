@@ -21,7 +21,6 @@ pub struct Button {
     pub bg: Color,
     pub fg: Color,
     pub text: String,
-    pub callback: Box<FnMut()>,
     pub pos_hint: Option<PosHint>,
     pub is_pressed: bool,
 }
@@ -73,9 +72,6 @@ impl Widget for Button {
         let bottom = top + self.size.y;
 
         let is_in = mouse_pos.x >= left && mouse_pos.x <= right && mouse_pos.y <= bottom && mouse_pos.y >= top;
-        if is_in && self.is_pressed {
-            (self.callback)();
-        }
         self.is_pressed = false;
         is_in
     }
@@ -91,7 +87,6 @@ impl Button {
         bg: Color,
         fg: Color,
         text: String,
-        callback: Box<FnMut()>,
         pos_hint: Option<PosHint>,
         ctx: &Context
     ) -> Self {
@@ -99,7 +94,7 @@ impl Button {
         let h = ctx.conf.window_mode.height;
         let hinted_pos = pos_from_hint(pos_hint.as_ref().unwrap(), &size, w, h);
 
-        Self { pos: hinted_pos, size, bg, fg, text, callback, pos_hint, is_pressed: false }
+        Self { pos: hinted_pos, size, bg, fg, text, pos_hint, is_pressed: false }
     }
 }
 
