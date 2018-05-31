@@ -25,6 +25,7 @@ pub struct StatsComp {
     pub max_health: u8,
     pub strength: u8,
     pub aim: u8,
+    pub move_per_turn: u8,
 }
 
 impl StatsComp {
@@ -34,6 +35,7 @@ impl StatsComp {
             max_health: 100,
             strength: 5,
             aim: 5,
+            move_per_turn: 5,
         }
     }
 }

@@ -1,8 +1,10 @@
 use std::fs::DirEntry;
 
-use ggez::{audio, GameResult, Context};
+use ggez::{audio, Context};
 use ggez::graphics::{Image, Font, Text};
 use std::collections::HashMap;
+
+use SkirmResult;
 
 pub struct AssetStorage {
     pub images: HashMap<String, Image>,
@@ -12,7 +14,7 @@ pub struct AssetStorage {
 }
 
 impl AssetStorage {
-    pub fn new(ctx: &mut Context) -> GameResult<Self> {
+    pub fn new(ctx: &mut Context) -> SkirmResult<Self> {
         let map1 = HashMap::new();
         let map2 = HashMap::new();
         let font = Font::new(ctx, "/fonts/FiraMono-Medium.ttf", 14)?;
@@ -31,7 +33,7 @@ impl AssetStorage {
         })
     }
 
-    pub fn load_sounds(&mut self, _ctx: &mut Context) -> GameResult<()> {
+    pub fn load_sounds(&mut self, _ctx: &mut Context) -> SkirmResult {
         // use std::fs;
         // let dirs = fs::read_dir("./resources/sounds")?;
 
@@ -53,7 +55,7 @@ impl AssetStorage {
         (name, ggez_path_str)
     }
 
-    pub fn load_images(&mut self, _ctx: &mut Context) -> GameResult<()> {
+    pub fn load_images(&mut self, _ctx: &mut Context) -> SkirmResult {
         use std::fs;
         let dirs = fs::read_dir("./resources/images")?;
 

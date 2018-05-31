@@ -1,4 +1,4 @@
-use ggez::{timer, event, graphics, Context, GameResult};
+use ggez::{timer, event, graphics, Context};
 use ggez::event::{Keycode, Mod, MouseButton};
 use ggez::graphics::{Point2, Rect};
 use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Index, Join};
@@ -18,6 +18,8 @@ use map::{MapPoint, SkirmMap};
 use gui::{Gui};
 use visual_effects::{GunshotEffect, GunshotEffects};
 
+use SkirmResult;
+
 pub struct Game<'a, 'b> {
     pub world: World,
     pub player_count: usize,
@@ -29,7 +31,7 @@ pub struct Game<'a, 'b> {
 }
 
 impl<'a, 'b> Game<'a, 'b> {
-    pub fn new(ctx: &mut Context) -> GameResult<Self> {
+    pub fn new(ctx: &mut Context) -> SkirmResult<Self> {
         let mut world = World::new();
 
         let pc = 0;
@@ -101,7 +103,7 @@ impl<'a, 'b> Game<'a, 'b> {
 }
 
 impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
-    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
+    fn update(&mut self, ctx: &mut Context) -> SkirmResult {
         if self.has_focus && !self.paused {
 
             if timer::get_ticks(ctx) % 50 == 0 {
@@ -117,7 +119,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         Ok(())
     }
 
-    fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
+    fn draw(&mut self, ctx: &mut Context) -> SkirmResult {
         let input = self.world.read_resource::<PlayerInput>();
         let assets = self.world.read_resource::<AssetStorage>();
         let map = self.world.read_resource::<SkirmMap>();

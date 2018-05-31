@@ -1,9 +1,10 @@
-use ggez::GameResult;
 use ron;
 
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
+
+use SkirmResult;
 
 pub enum Item {
 }
@@ -29,7 +30,7 @@ pub struct ItemFactory {
 }
 
 impl ItemFactory {
-    pub fn new() -> GameResult<Self> {
+    pub fn new() -> SkirmResult<Self> {
 
         // Weapons - open the file, read it into a buffer, deserialize with serde
         let mut weapon_file = File::open("./resources/weapons.ron")?;

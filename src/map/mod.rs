@@ -5,7 +5,6 @@ use std::io::{BufRead, BufReader};
 use std::collections::HashMap;
 
 use specs::Entity;
-use ggez::{GameResult};
 use ascii::{ToAsciiChar, AsciiChar};
 use pathfinding::dijkstra;
 use line_drawing;
@@ -14,6 +13,8 @@ mod point;
 mod tile;
 pub use self::point::MapPoint;
 pub use self::tile::{Tile, TileType};
+
+use SkirmResult;
 
 pub const TILE_WIDTH: i32 = 8;
 pub const TILE_HEIGHT: i32 = 14;
@@ -28,7 +29,7 @@ pub struct SkirmMap {
 }
 
 impl SkirmMap {
-    pub fn load<P>(path: P) -> GameResult<Self>
+    pub fn load<P>(path: P) -> SkirmResult<Self>
         where P: AsRef<Path> + Debug,
     {
         let map_file = File::open(path)?;
