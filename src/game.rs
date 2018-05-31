@@ -14,7 +14,7 @@ use resources::DeltaTime;
 use input::{PlayerInput, PendingCommand};
 use item::ItemFactory;
 use skirmer::{SkirmerFactory, SkirmerType};
-use map::{MapPoint, SkirmMap};
+use map::{MapPoint, SkirmMap, load_map};
 use gui::{Gui};
 use visual_effects::{GunshotEffect, GunshotEffects};
 
@@ -39,7 +39,7 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut asset_storage = AssetStorage::new(ctx)?;
         let item_factory = ItemFactory::new()?;
         let skirmer_factory = SkirmerFactory::new();
-        let mut skirmmap = SkirmMap::load("./resources/maps/test.skirm_map")?;
+        let mut skirmmap = load_map("./resources/maps/test")?;
 
         asset_storage.load_images(ctx)?;
         asset_storage.load_sounds(ctx)?;
@@ -126,7 +126,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let pos_components = self.world.read::<PositionComp>();
         let player_ent = (*self.world.entities()).join().nth(self.p1_id as usize).unwrap();
         let player_pos = pos_components.get(player_ent).unwrap();
-        let pos = MapPoint::from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
+        let pos = MapPoint::from_pixel_coord(player_pos.x as i32, player_pos.y as i32, player_pos.z as i32);
 
         graphics::clear(ctx);
 
