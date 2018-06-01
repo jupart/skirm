@@ -22,7 +22,8 @@ use SkirmResult;
 
 pub struct Game<'a, 'b> {
     pub world: World,
-    pub player_count: usize,
+    pub skirmers: Vec<Index>,
+    pub active_turn_id: Index,
     pub p1_id: Index,
     pub gui: Gui,
     pub dispatcher: Dispatcher<'a, 'b>,
@@ -33,9 +34,6 @@ pub struct Game<'a, 'b> {
 impl<'a, 'b> Game<'a, 'b> {
     pub fn new(ctx: &mut Context) -> SkirmResult<Self> {
         let mut world = World::new();
-
-        let pc = 0;
-
         register_components(&mut world);
 
         let mut asset_storage = AssetStorage::new(ctx)?;
@@ -59,7 +57,17 @@ impl<'a, 'b> Game<'a, 'b> {
             &mut world,
         ).unwrap();
 
-        skirmer_factory.create_skirmer(8, 4, &SkirmerType::Sniper, &item_factory, &mut skirmmap, &mut world).unwrap();
+        let npc_id = skirmer_factory.create_skirmer(
+            8,
+            4,
+            &SkirmerType::Sniper,
+            &item_factory,
+            &mut skirmmap,
+            &mut world
+        ).unwrap();
+
+        let skirmers = vec![p1_id, npc_id];
+        let active_turn_id = p1_id;
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();
 
@@ -85,7 +93,8 @@ impl<'a, 'b> Game<'a, 'b> {
 
         Ok(Self {
             world,
-            player_count: pc,
+            skirmers,
+            active_turn_id,
             p1_id,
             gui,
             dispatcher,
@@ -106,9 +115,9 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn update(&mut self, ctx: &mut Context) -> SkirmResult {
         if self.has_focus && !self.paused {
 
-            if timer::get_ticks(ctx) % 50 == 0 {
-                println!("FPS: {}", timer::get_fps(ctx));
-            }
+            // if timer::get_ticks(ctx) % 50 == 0 {
+            //     println!("FPS: {}", timer::get_fps(ctx));
+            // }
 
             let dt = &timer::get_delta(ctx);
             self.world.write_resource::<DeltaTime>().delta = *dt;

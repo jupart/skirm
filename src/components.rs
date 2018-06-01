@@ -8,6 +8,19 @@ use rendering::RenderType;
 use map::{SkirmMap, MapPoint};
 
 #[derive(Component)]
+pub struct TurnComp {
+    pub current_turn: bool,
+    pub has_taken_action: bool,
+    pub has_moved: u8,
+}
+
+impl TurnComp {
+    pub fn default() -> Self {
+        Self { current_turn: false, has_taken_action: false, has_moved: 0 }
+    }
+}
+
+#[derive(Component)]
 pub struct EquipmentComp {
     pub weapon: Weapon,
     pub items: Vec<Item>,
@@ -125,4 +138,5 @@ pub fn register_components(world: &mut World) {
     world.register::<ActionComp>();
     world.register::<StatsComp>();
     world.register::<EquipmentComp>();
+    world.register::<TurnComp>();
 }
