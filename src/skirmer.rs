@@ -1,4 +1,4 @@
-use specs::{Index, World};
+use specs::{Entity, World};
 
 use item::{Weapon, Item, ItemFactory};
 use components::*;
@@ -25,7 +25,7 @@ impl SkirmerFactory {
         item_factory: &ItemFactory,
         map: &mut SkirmMap,
         world: &mut World
-    ) -> Result<Index, MapError> {
+    ) -> Result<Entity, MapError> {
         let (weapon, items) = self.get_skirmer_items(skirmer, item_factory);
 
         let tile_point = MapPoint::new(tile_x, tile_y);
@@ -39,7 +39,7 @@ impl SkirmerFactory {
             .with(TurnComp::default())
             .build();
 
-        map.add_occupant(ent, tile_point).map(|()| ent.id())
+        map.add_occupant(ent, tile_point).map(|()| ent)
     }
 
     fn get_skirmer_items(&self, skirmer: &SkirmerType, factory: &ItemFactory) -> (Weapon, Vec<Item>) {

@@ -1,7 +1,7 @@
 use ggez::{timer, event, graphics, Context};
 use ggez::event::{Keycode, Mod, MouseButton};
 use ggez::graphics::{Point2, Rect};
-use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Index, Join};
+use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
 
 use std::collections::HashMap;
 use std::time::Duration;
@@ -22,9 +22,9 @@ use SkirmResult;
 
 pub struct Game<'a, 'b> {
     pub world: World,
-    pub skirmers: Vec<Index>,
-    pub active_turn_id: Index,
-    pub p1_id: Index,
+    pub skirmers: Vec<Entity>,
+    pub active_ent: Entity,
+    pub p1_ent: Entity,
     pub gui: Gui,
     pub dispatcher: Dispatcher<'a, 'b>,
     pub has_focus: bool,
@@ -36,10 +36,11 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut world = World::new();
         register_components(&mut world);
 
+        // Build storage and factories
         let mut asset_storage = AssetStorage::new(ctx)?;
         let item_factory = ItemFactory::new()?;
         let skirmer_factory = SkirmerFactory::new();
-        let mut skirmmap = SkirmMap::load("./resources/maps/test.skirm_map")?;
+        let mut map = SkirmMap::load("./resources/maps/test.skirm_map")?;
 
         asset_storage.load_images(ctx)?;
         asset_storage.load_sounds(ctx)?;
@@ -48,37 +49,21 @@ impl<'a, 'b> Game<'a, 'b> {
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
         // Create entities
-        let p1_id = skirmer_factory.create_skirmer(
-            8,
-            1,
-            &SkirmerType::Fighter,
-            &item_factory,
-            &mut skirmmap,
-            &mut world,
-        ).unwrap();
-
-        let npc_id = skirmer_factory.create_skirmer(
-            8,
-            4,
-            &SkirmerType::Sniper,
-            &item_factory,
-            &mut skirmmap,
-            &mut world
-        ).unwrap();
-
-        let skirmers = vec![p1_id, npc_id];
-        let active_turn_id = p1_id;
+        let p1_ent = skirmer_factory.create_skirmer(8, 1, &Fighter, &item_factory, &mut map, &mut world).unwrap();
+        let npc_ent = skirmer_factory.create_skirmer(8, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
+        let skirmers = vec![p1_ent, npc_ent];
+        let active_ent = p1_ent;
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();
 
         // Add specs shared resources
-        world.add_resource::<AssetStorage>(asset_storage);
+        world.add_resource(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
-        world.add_resource(PlayerInput::new(p1_id));
-        world.add_resource(skirmmap);
+        world.add_resource(PlayerInput::new(p1_ent));
+        world.add_resource(map);
         world.add_resource(GunshotEffects { effects: gunshot_effects });
 
-        // Dispatch systems
+        // Build system dispatcher
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .add(ActionSys, "action", &[])
             .add(PlayerInputSys, "player_input", &[])
@@ -94,8 +79,8 @@ impl<'a, 'b> Game<'a, 'b> {
         Ok(Self {
             world,
             skirmers,
-            active_turn_id,
-            p1_id,
+            active_ent,
+            p1_ent,
             gui,
             dispatcher,
             has_focus: true,
@@ -135,8 +120,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let mut gun_effects = self.world.write_resource::<GunshotEffects>();
 
         let pos_components = self.world.read::<PositionComp>();
-        let player_ent = (*self.world.entities()).join().nth(self.p1_id as usize).unwrap();
-        let player_pos = pos_components.get(player_ent).unwrap();
+        let player_pos = pos_components.get(self.p1_ent).unwrap();
         let pos = MapPoint::from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);

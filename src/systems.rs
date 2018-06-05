@@ -48,7 +48,6 @@ impl<'a> System<'a> for PositionSys {
 pub struct PlayerInputSys;
 impl<'a> System<'a> for PlayerInputSys {
     type SystemData = (
-        Entities<'a>,
         Fetch<'a, SkirmMap>,
         FetchMut<'a, PlayerInput>,
         WriteStorage<'a, ActionComp>,
@@ -57,16 +56,15 @@ impl<'a> System<'a> for PlayerInputSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (entities, skirmmap, mut input, mut action_comp, position_comp, _equipment_comp) = data;
+        let (skirmmap, mut input, mut action_comp, position_comp, _equipment_comp) = data;
 
         if input.pending_command.is_none() || input.command_point.is_none() {
             return;
         }
 
-        let player_ent = entities.join().nth(input.id as usize).unwrap();
-        let p = position_comp.get(player_ent).unwrap();
-        // let e = equipment_comp.get(player_ent).unwrap();
-        let a = action_comp.get_mut(player_ent).unwrap();
+        let p = position_comp.get(input.ent).unwrap();
+        // let e = equipment_comp.get(input.ent).unwrap();
+        let a = action_comp.get_mut(input.ent).unwrap();
 
         let pos = MapPoint::from_pixel_coord(p.x as i32, p.y as i32);
         let to = input.command_point.map(|(x, y)| MapPoint::from_pixel_coord(x, y)).unwrap();

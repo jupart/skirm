@@ -1,4 +1,4 @@
-use specs::Index;
+use specs::Entity;
 
 #[derive(Clone, Copy)]
 pub enum PendingCommand {
@@ -9,15 +9,15 @@ pub enum PendingCommand {
 pub struct PlayerInput {
     pub pending_command: Option<PendingCommand>,
     pub command_point: Option<(i32, i32)>,
-    pub id: Index,
+    pub ent: Entity,
 }
 
 impl PlayerInput {
-    pub fn new(id: Index) -> Self {
+    pub fn new(ent: Entity) -> Self {
         PlayerInput {
             pending_command: None,
             command_point: None,
-            id,
+            ent,
         }
     }
 
