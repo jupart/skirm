@@ -6,15 +6,15 @@ pub enum PendingCommand {
     Attack,
 }
 
-pub struct PlayerInput {
+pub struct SkirmerInput {
     pub pending_command: Option<PendingCommand>,
     pub command_point: Option<(i32, i32)>,
     pub ent: Entity,
 }
 
-impl PlayerInput {
+impl SkirmerInput {
     pub fn new(ent: Entity) -> Self {
-        PlayerInput {
+        Self {
             pending_command: None,
             command_point: None,
             ent,

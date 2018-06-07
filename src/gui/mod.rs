@@ -6,7 +6,7 @@ use ggez::mouse;
 
 use rendering::{WHITE, BLACK};
 use asset_storage::AssetStorage;
-use input::{PendingCommand, PlayerInput};
+use input::{PendingCommand, SkirmerInput};
 use map::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT};
 use self::widgets::{Widget, Button, PosHint};
 
@@ -71,7 +71,7 @@ impl Gui {
         graphics::set_color(ctx, true_white).unwrap();
     }
 
-    pub fn draw(&self, player_pos: &MapPoint, input: &PlayerInput, assets: &AssetStorage, map: &SkirmMap, ctx: &mut Context) {
+    pub fn draw(&self, player_pos: &MapPoint, input: &SkirmerInput, assets: &AssetStorage, map: &SkirmMap, ctx: &mut Context) {
         for widget in &self.widgets {
             widget.draw(assets, ctx);
         }
