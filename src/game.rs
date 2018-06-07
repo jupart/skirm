@@ -160,7 +160,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         let mut gun_effects = self.world.write_resource::<GunshotEffects>();
 
         let pos_components = self.world.read::<PositionComp>();
-        let player_pos = pos_components.get(self.p1_ent).unwrap();
+        let player_pos = pos_components.get(input.ent).unwrap();
         let pos = MapPoint::from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);
