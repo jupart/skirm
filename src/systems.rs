@@ -18,6 +18,7 @@ impl<'a> System<'a> for StatsSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
+        info!("<- StatsSys");
         let (entities, stats) = data;
         for ent in entities.join() {
             let ent_stat = stats.get(ent).unwrap();
@@ -28,6 +29,7 @@ impl<'a> System<'a> for StatsSys {
                 }
             }
         }
+        info!("-> StatsSys");
     }
 }
 
@@ -38,7 +40,8 @@ impl<'a> System<'a> for PositionSys {
     );
 
     fn run(&mut self, _data: Self::SystemData) {
-
+        info!("<- PositionSys");
+        info!("-> PositionSys");
     }
 }
 
@@ -56,6 +59,7 @@ impl<'a> System<'a> for SkirmerInputSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
+        info!("<- SkirmerInputSys");
         let (skirmmap, mut input, mut action, position, stats, mut turn) = data;
 
         let turn = turn.get_mut(input.ent).unwrap();
@@ -65,6 +69,7 @@ impl<'a> System<'a> for SkirmerInputSys {
             || turn.phase == TurnPhase::Start
             || turn.phase == TurnPhase::Finish
         {
+            info!("-> SkirmerInputSys");
             return;
         }
 
@@ -101,6 +106,7 @@ impl<'a> System<'a> for SkirmerInputSys {
         }
         input.pending_command = None;
         input.command_point = None;
+        info!("-> SkirmerInputSys");
     }
 }
 
@@ -174,6 +180,7 @@ impl<'a> System<'a> for ActionSys {
     );
 
     fn run(&mut self, data: Self::SystemData) {
+        info!("<- ActionSys");
         let (time, mut stats, mut action_comp, mut position_comp, equipment, map, mut gun_effects) = data;
         let dt = time.delta.as_secs() as f32 + time.delta.subsec_nanos() as f32 * 1e-9;
 
@@ -190,6 +197,7 @@ impl<'a> System<'a> for ActionSys {
                 a.current_action = change_to.unwrap();
             }
         }
+        info!("-> ActionSys");
     }
 }
 
@@ -229,6 +237,7 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
     );
 
     fn run(&mut self, data: Self::SystemData) {
+        info!("<- RenderSys");
         let (assets, map, render_comp, position_comp) = data;
 
         // Draw map
@@ -249,6 +258,7 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
                 }
             }
         }
+        info!("-> RenderSys");
     }
 }
 
@@ -260,6 +270,7 @@ impl<'a> System<'a> for SoundSys {
     );
 
     fn run(&mut self, _data: Self::SystemData) {
-
+        info!("<- SoundSys");
+        info!("-> SoundSys");
     }
 }

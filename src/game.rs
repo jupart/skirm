@@ -35,7 +35,7 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut world = World::new();
         register_components(&mut world);
 
-        // Build storage and factories
+        info!("Build storage and skirmer/item factories");
         let mut asset_storage = AssetStorage::new(ctx)?;
         let item_factory = ItemFactory::new()?;
         let skirmer_factory = SkirmerFactory::new();
@@ -47,21 +47,21 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut ent1_sounds = HashMap::new();
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
-        // Create entities
+        info!("Create entities");
         let p1_ent = skirmer_factory.create_skirmer(8, 1, &Fighter, &item_factory, &mut map, &mut world).unwrap();
         let npc_ent = skirmer_factory.create_skirmer(8, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
         let skirmers = vec![p1_ent, npc_ent];
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();
 
-        // Add specs shared resources
+        info!("Add specs shared resources");
         world.add_resource(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
         world.add_resource(SkirmerInput::new(p1_ent));
         world.add_resource(map);
         world.add_resource(GunshotEffects { effects: gunshot_effects });
 
-        // Build system dispatcher
+        info!("Build system dispatcher");
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .add(ActionSys, "action", &[])
             .add(SkirmerInputSys, "player_input", &[])
@@ -70,6 +70,7 @@ impl<'a, 'b> Game<'a, 'b> {
             .add(SoundSys, "sound", &[])
             .build();
 
+        info!("Build gui");
         let gui = Gui::new(ctx);
 
         graphics::set_background_color(ctx, BLACK);
@@ -101,8 +102,9 @@ impl<'a, 'b> Game<'a, 'b> {
         let dt = &timer::get_delta(ctx);
         self.world.write_resource::<DeltaTime>().delta = *dt;
 
-        // Dispatch the specs systems
+        info!("  <- Dispatch the specs systems");
         self.dispatcher.dispatch(&self.world.res);
+        info!("  -> Dispatch the specs systems");
 
         // Perform specs maintenance, removing entities, etc.
         self.world.maintain();
@@ -123,7 +125,6 @@ impl<'a, 'b> Game<'a, 'b> {
             let active_turn_comp = turn_comps.get_mut(input.ent).unwrap();
 
             if active_turn_comp.phase == TurnPhase::Finish {
-                println!("{:?}'s turn is finished", input.ent);
                 start_new_turn = true;
                 active_turn_comp.phase = TurnPhase::FirstAction;
 
@@ -147,13 +148,16 @@ impl<'a, 'b> Game<'a, 'b> {
 impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn update(&mut self, ctx: &mut Context) -> SkirmResult {
         if self.has_focus && !self.paused {
+            info!("<- Update Game");
             self.update_game(ctx);
+            info!("-> Update Game");
         }
 
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> SkirmResult {
+        info!("<- Draw Game");
         let input = self.world.read_resource::<SkirmerInput>();
         let assets = self.world.read_resource::<AssetStorage>();
         let map = self.world.read_resource::<SkirmMap>();
@@ -180,6 +184,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         graphics::present(ctx);
 
         timer::yield_now();
+        info!("-> Draw Game");
         Ok(())
     }
 

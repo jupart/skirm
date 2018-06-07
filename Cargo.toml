@@ -12,6 +12,8 @@ pathfinding = "0.6.10"
 ascii = "0.8.6"
 ron = "0.2.0"
 line_drawing = "0.7.0"
+env_logger = "0.5.10"
+log = "0.4.2"
 
 [dependencies.ggez]
 version = "0.4"
