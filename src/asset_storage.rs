@@ -17,7 +17,7 @@ impl AssetStorage {
     pub fn new(ctx: &mut Context) -> SkirmResult<Self> {
         let map1 = HashMap::new();
         let map2 = HashMap::new();
-        let font = Font::new(ctx, "/fonts/FiraMono-Medium.ttf", 14)?;
+        let font = Font::new(ctx, "/fonts/FiraMono-Regular.ttf", 11)?;
         let mut glyphs = HashMap::new();
 
         // Leading space is intentional

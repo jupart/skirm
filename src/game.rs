@@ -94,7 +94,7 @@ impl<'a, 'b> Game<'a, 'b> {
     }
 
     fn update_game(&mut self, ctx: &mut Context) {
-        // self.print_fps(ctx);
+        self.print_fps_to_info(ctx);
 
         self.update_current_skirmer_turn();
 
@@ -110,9 +110,9 @@ impl<'a, 'b> Game<'a, 'b> {
         self.world.maintain();
     }
 
-    fn print_fps(&self, ctx: &mut Context) {
+    fn print_fps_to_info(&self, ctx: &mut Context) {
         if timer::get_ticks(ctx) % 50 == 0 {
-            println!("FPS: {}", timer::get_fps(ctx));
+            info!("FPS: {}", timer::get_fps(ctx));
         }
     }
 

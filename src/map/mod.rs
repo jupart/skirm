@@ -16,14 +16,15 @@ pub use self::tile::{Tile, TileType};
 
 use SkirmResult;
 
-pub const TILE_WIDTH: i32 = 8;
-pub const TILE_HEIGHT: i32 = 14;
+pub const TILE_WIDTH: i32 = 7;
+pub const TILE_HEIGHT: i32 = 11;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum MapError {
     Occupied,
     PointDoesNotExist,
 }
+
 pub struct SkirmMap {
     pub map: HashMap<MapPoint, Tile>,
 }
