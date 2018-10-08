@@ -2,6 +2,7 @@
 name = "skirm"
 version = "0.1.0"
 authors = ["jupart <justinwpartain1@gmail.com>"]
+edition = '2018'
 
 [dependencies]
 specs = "0.10.0"

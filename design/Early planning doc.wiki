@@ -1,0 +1,77 @@
+= Design Doc =
+== Basics ==
+ * Type of project - multiphase design
+ * Working title - Aok
+ * One line description -
+
+== Gameplay ==
+ * Area discovery or limitations
+ * Different ways of presenting gameplay
+ * Time-based effects per level
+ * How to leave level
+ * Number of enemies/fight style
+ * If you die, you must start over, no saving mid-run
+
+== Plot ==
+ * What are you?
+ * Who else exists in this setting?
+     * Aok tribe
+     * Sentient machines
+     * Bots
+     * Humans
+ * How are you different?
+ * What is your goal?
+     * Descend to the core of the planet
+ * Who plots against you?
+ * What information is revealed?
+
+== Presentation ==
+ * Hand drawn art style
+ * Main goal is immersion
+ * UI is minimal
+ * Damage is not shown, so other immediate feedback is necessary
+     * Blood, parts flying, sounds
+ * Dialogue in speech bubbles
+
+== Mechanics ==
+ * Collecting soul from defeated enemies
+ * Spend your level up points on elevator ride
+ * Four main upgradable abilities per character
+ * Pull chunk of rock out of ceiling, floor, or wall
+ * Aimable ranged attacks
+ * Upgradable items in fixed number of slots, able to spend soul on
+
+== Combat ==
+ * Fixed damage dealt (not random, no crits)
+ * Knock-back for heavy characters
+
+== Maps ==
+ * Every level has an elevator you have to call and wait on
+ * Discoverable areas
+     * Implies somewhat limited vision
+     * Smashable walls
+     * Hidden pathways
+ * Cannot revisit earlier levels, only progress forward
+
+== Strategies/Play styles ==
+ * Smasher
+     * Heavy
+     * Fast
+ * Shooter
+     * Heavy
+     * Fast
+ * Sneaker
+ * Planner/Builder
+
+== Progression ==
+ * Mid-run progression
+     * Spend points on abilities and items in elevator ala Dead Space
+ * Post-run progression
+     * Achievables and Logs ala Risk of Rain
+         * Logs will be short cut scenes, which will unlock new character ability progressions
+         * Achievables unlock item info and new item progressions
+
+= Phase 1 =
+ * choose smallest number of requirements to get a working prototype
+
+= Phase 2 =
