@@ -34,7 +34,7 @@ impl SkirmerFactory {
         let (x, y) = tile_point.as_float_coord_tuple();
         let ent = world.create_entity()
             .with(PositionComp::new(x, y))
-            .with(RenderComp { render_type: RenderType::Image { id: "blue_box" } })
+            .with(RenderComp { render_type: RenderType::Image { id: "green_box" } })
             .with(StatsComp::default())
             .with(ActComp::new())
             .with(EquipmentComp::new(weapon, items))

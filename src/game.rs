@@ -12,11 +12,12 @@ use crate::{
     systems::*,
     rendering::BLACK,
     resources::DeltaTime,
-    input::{SkirmerInput, PendingCommand},
+    // input::{SkirmerInput, PendingCommand},
+    input::SkirmerInput,
     item::ItemFactory,
     skirmer::{SkirmerFactory, SkirmerType::Fighter, SkirmerType::Sniper},
     map::{MapPoint, SkirmMap},
-    gui::{Gui},
+    // gui::{Gui},
     visual_effects::{GunshotEffect, GunshotEffects},
 };
 
@@ -26,7 +27,7 @@ pub struct Game<'a, 'b> {
     pub world: World,
     pub skirmers: Vec<Entity>,
     pub p1_ent: Entity,
-    pub gui: Gui,
+    // pub gui: Gui,
     pub dispatcher: Dispatcher<'a, 'b>,
     pub has_focus: bool,
     pub paused: bool,
@@ -51,8 +52,8 @@ impl<'a, 'b> Game<'a, 'b> {
 
         info!("Create entities");
         let p1_ent = skirmer_factory.create_skirmer(2, 2, &Fighter, &item_factory, &mut map, &mut world).unwrap();
-        let npc_ent = skirmer_factory.create_skirmer(2, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
-        let skirmers = vec![p1_ent, npc_ent];
+        // let npc_ent = skirmer_factory.create_skirmer(2, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
+        let skirmers = vec![p1_ent];
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();
 
@@ -66,14 +67,14 @@ impl<'a, 'b> Game<'a, 'b> {
         info!("Build system dispatcher");
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .add(ActSys, "action", &[])
-            .add(PlanSys, "player_input", &[])
+            // .add(PlanSys, "player_input", &[])
             .add(PositionSys, "position", &[])
             .add(StatsSys, "stats", &[])
             .add(SoundSys, "sound", &[])
             .build();
 
-        info!("Build gui");
-        let gui = Gui::new(ctx);
+        // info!("Build gui");
+        // let gui = Gui::new(ctx);
 
         graphics::set_background_color(ctx, BLACK);
 
@@ -81,7 +82,7 @@ impl<'a, 'b> Game<'a, 'b> {
             world,
             skirmers,
             p1_ent,
-            gui,
+            // gui,
             dispatcher,
             has_focus: true,
             paused: false,
@@ -113,9 +114,7 @@ impl<'a, 'b> Game<'a, 'b> {
     }
 
     fn print_fps_to_info(&self, ctx: &mut Context) {
-        if timer::get_ticks(ctx) % 50 == 0 {
-            info!("FPS: {}", timer::get_fps(ctx));
-        }
+        info!("FPS: {}", timer::get_fps(ctx));
     }
 
     fn update_current_skirmer_turn(&mut self) {
@@ -178,10 +177,10 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         }
 
         // Effects rendering
-        self.draw_effects(ctx, &mut gun_effects.effects);
+        // self.draw_effects(ctx, &mut gun_effects.effects);
 
         // Gui rendering
-        self.gui.draw(&pos, &input, &assets, &*map, ctx);
+        // self.gui.draw(&pos, &input, &assets, &*map, ctx);
 
         graphics::present(ctx);
 
@@ -190,17 +189,26 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
         Ok(())
     }
 
-    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, repeat: bool) {
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
         let mut input = self.world.write_resource::<SkirmerInput>();
 
-        if repeat {
-            return;
+        match keycode {
+            Keycode::W => input.up = true,
+            Keycode::S => input.down = true,
+            Keycode::A => input.left = true,
+            Keycode::D => input.right = true,
+            _ => ()
         }
+    }
+
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
+        let mut input = self.world.write_resource::<SkirmerInput>();
 
         match keycode {
-            Keycode::A => input.set_pending_command(PendingCommand::Attack),
-            Keycode::M => input.set_pending_command(PendingCommand::Move),
-            Keycode::Escape => input.clear_pending_command(),
+            Keycode::W => input.up = false,
+            Keycode::S => input.down = false,
+            Keycode::A => input.left = false,
+            Keycode::D => input.right = false,
             _ => ()
         }
     }
@@ -210,34 +218,33 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     }
 
     fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
-        let mut input = self.world.write_resource::<SkirmerInput>();
+        // let mut input = self.world.write_resource::<SkirmerInput>();
 
-        if self.gui.handle_click(Point2::new(x as f32, y as f32)) {
-            return
-        }
+        // if self.gui.handle_click(Point2::new(x as f32, y as f32)) {
+        //     return
+        // }
 
-        match button {
-            MouseButton::Left => input.select_point(x, y),
-            MouseButton::Right => (),
-            MouseButton::Middle => (),
-            _ => (),
-        }
+        // match button {
+        //     MouseButton::Left => input.select_point(x, y),
+        //     MouseButton::Right => (),
+        //     MouseButton::Middle => (),
+        //     _ => (),
+        // }
     }
 
     fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, x: i32, y: i32) {
-        if self.gui.handle_release(Point2::new(x as f32, y as f32)) {
-            return
-        }
+        // if self.gui.handle_release(Point2::new(x as f32, y as f32)) {
+        //     return
+        // }
     }
 
     fn resize_event(&mut self, ctx: &mut Context, width: u32, height: u32) {
         let rect = Rect::new(0.0, 0.0, width as f32, height as f32);
         graphics::set_screen_coordinates(ctx, rect).unwrap();
-        self.gui.window_resized(width, height);
+        // self.gui.window_resized(width, height);
     }
 
     // fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, x: i32, y: i32) {
-    // fn key_up_event(&mut self, _ctx: &mut Context, _keycode: Keycode, _keymod: Mod, _repeat: bool) { }
     // fn mouse_motion_event(&mut self, _state: MouseState, _x: i32, _y: i32, _xrel: i32, _yrel: i32) { ... }
     // fn mouse_wheel_event(&mut self, _x: i32, _y: i32) { ... }
     // fn controller_button_down_event(&mut self, _btn: Button, _instance_id: i32) { ... }
