@@ -1,9 +1,11 @@
 use specs::{Entity, World};
 
-use item::{Weapon, Item, ItemFactory};
-use components::*;
-use rendering::RenderType;
-use map::{SkirmMap, MapPoint, MapError};
+use crate::{
+    item::{Weapon, Item, ItemFactory},
+    components::*,
+    rendering::RenderType,
+    map::{SkirmMap, MapPoint, MapError},
+};
 
 pub enum SkirmerType {
     Fighter,
@@ -32,7 +34,7 @@ impl SkirmerFactory {
         let (x, y) = tile_point.as_float_coord_tuple();
         let ent = world.create_entity()
             .with(PositionComp::new(x, y))
-            .with(RenderComp { render_type: RenderType::Glyph { id: '@' } })
+            .with(RenderComp { render_type: RenderType::Image { id: "blue_box" } })
             .with(StatsComp::default())
             .with(ActionComp::new())
             .with(EquipmentComp::new(weapon, items))

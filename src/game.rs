@@ -6,19 +6,21 @@ use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
 use std::collections::HashMap;
 use std::time::Duration;
 
-use asset_storage::AssetStorage;
-use components::*;
-use systems::*;
-use rendering::BLACK;
-use resources::DeltaTime;
-use input::{SkirmerInput, PendingCommand};
-use item::ItemFactory;
-use skirmer::{SkirmerFactory, SkirmerType::Fighter, SkirmerType::Sniper};
-use map::{MapPoint, SkirmMap};
-use gui::{Gui};
-use visual_effects::{GunshotEffect, GunshotEffects};
+use crate::{
+    asset_storage::AssetStorage,
+    components::*,
+    systems::*,
+    rendering::BLACK,
+    resources::DeltaTime,
+    input::{SkirmerInput, PendingCommand},
+    item::ItemFactory,
+    skirmer::{SkirmerFactory, SkirmerType::Fighter, SkirmerType::Sniper},
+    map::{MapPoint, SkirmMap},
+    gui::{Gui},
+    visual_effects::{GunshotEffect, GunshotEffects},
+};
 
-use SkirmResult;
+use crate::SkirmResult;
 
 pub struct Game<'a, 'b> {
     pub world: World,
@@ -48,8 +50,8 @@ impl<'a, 'b> Game<'a, 'b> {
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
         info!("Create entities");
-        let p1_ent = skirmer_factory.create_skirmer(8, 1, &Fighter, &item_factory, &mut map, &mut world).unwrap();
-        let npc_ent = skirmer_factory.create_skirmer(8, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
+        let p1_ent = skirmer_factory.create_skirmer(2, 2, &Fighter, &item_factory, &mut map, &mut world).unwrap();
+        let npc_ent = skirmer_factory.create_skirmer(2, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
         let skirmers = vec![p1_ent, npc_ent];
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();

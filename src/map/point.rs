@@ -1,7 +1,11 @@
 use ggez::graphics::Point2;
 
-use map::{SkirmMap, TILE_WIDTH, TILE_HEIGHT};
-use map::tile::TileType;
+use crate::map::{
+    SkirmMap,
+    TILE_WIDTH,
+    TILE_HEIGHT,
+    tile::TileType,
+};
 
 #[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
 pub struct MapPoint {
@@ -48,7 +52,7 @@ impl MapPoint {
                 },
             };
 
-            if neighbor.tile_type == TileType::Ground {
+            if neighbor.tile_type == Some(TileType::Ground) {
                 let weight = if i == 0 || i == 2 || i == 5 || i == 7 {
                     2
                 } else {

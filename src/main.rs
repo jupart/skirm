@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+// #![allow(dead_code)]
 
 extern crate ggez;
 extern crate specs;
@@ -34,7 +34,7 @@ mod input;
 mod gui;
 mod visual_effects;
 
-use game::Game;
+use crate::game::Game;
 
 type SkirmResult<T = ()> = GameResult<T>;
 

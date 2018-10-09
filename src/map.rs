@@ -1,23 +1,25 @@
-use std::fs::File;
-use std::path::Path;
-use std::fmt::Debug;
-use std::io::{BufRead, BufReader};
-use std::collections::HashMap;
+use std::{
+    fs::File,
+    path::Path,
+    fmt::Debug,
+    io::{ BufRead, BufReader },
+    collections::HashMap,
+};
 
 use specs::Entity;
 use ascii::{ToAsciiChar, AsciiChar};
 use pathfinding::dijkstra;
 use line_drawing;
 
-mod point;
-mod tile;
+pub mod point;
+pub mod tile;
 pub use self::point::MapPoint;
 pub use self::tile::{Tile, TileType};
 
-use SkirmResult;
+use crate::SkirmResult;
 
-pub const TILE_WIDTH: i32 = 7;
-pub const TILE_HEIGHT: i32 = 11;
+pub const TILE_WIDTH: i32 = 32;
+pub const TILE_HEIGHT: i32 = 32;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum MapError {
@@ -25,6 +27,7 @@ pub enum MapError {
     PointDoesNotExist,
 }
 
+#[derive(Debug)]
 pub struct SkirmMap {
     pub map: HashMap<MapPoint, Tile>,
 }
@@ -40,9 +43,10 @@ impl SkirmMap {
         for (j, line) in buffer.lines().enumerate() {
             for (i, c) in line.unwrap().chars().enumerate() {
                 if c.to_ascii_char().unwrap() == AsciiChar::Hash {
-                    map.insert(MapPoint::new(i as i32, j as i32), Tile::new(TileType::Wall));
-                } else {
-                    map.insert(MapPoint::new(i as i32, j as i32), Tile::new(TileType::Ground));
+                    map.insert(MapPoint::new(i as i32, j as i32), Tile::new(Some(TileType::Ground)));
+                }
+                else {
+                    map.insert(MapPoint::new(i as i32, j as i32), Tile::new(None));
                 }
             }
         }
@@ -53,7 +57,7 @@ impl SkirmMap {
     pub fn has_ground_at(&self, point: &MapPoint) -> bool {
         match self.map.get(point) {
             Some(tile) => {
-                tile.tile_type == TileType::Ground
+                tile.tile_type == Some(TileType::Ground)
             },
             None => false,
         }

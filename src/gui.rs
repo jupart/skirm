@@ -4,10 +4,14 @@ use ggez::{graphics, Context};
 use ggez::graphics::{Color, Rect, DrawMode, Point2};
 use ggez::mouse;
 
-use rendering::{WHITE, BLACK};
-use asset_storage::AssetStorage;
-use input::{PendingCommand, SkirmerInput};
-use map::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT};
+use crate::{
+    rendering::{WHITE, BLACK},
+    asset_storage::AssetStorage,
+    input::{PendingCommand, SkirmerInput},
+    map::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT},
+
+};
+
 use self::widgets::{Widget, Button, PosHint};
 
 fn simple_callback() {

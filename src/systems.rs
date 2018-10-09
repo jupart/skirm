@@ -1,14 +1,16 @@
 use ggez::{graphics, Context};
 use specs::{Entity, Entities, Fetch, FetchMut, System, ReadStorage, WriteStorage, Join};
 
-use asset_storage::AssetStorage;
-use components::*;
-use resources::DeltaTime;
-use input::{SkirmerInput, PendingCommand};
-use rendering::{RenderType, WHITE};
-use map::{SkirmMap, MapPoint, tile_distance};
-use visual_effects::{GunshotEffect, GunshotEffects};
-use item::{Weapon};
+use crate::{
+    asset_storage::AssetStorage,
+    components::*,
+    resources::DeltaTime,
+    input::{SkirmerInput, PendingCommand},
+    rendering::{RenderType, WHITE},
+    map::{SkirmMap, MapPoint, tile_distance},
+    visual_effects::{GunshotEffect, GunshotEffects},
+    item::{Weapon},
+};
 
 pub struct StatsSys;
 impl<'a> System<'a> for StatsSys {
@@ -210,21 +212,14 @@ impl<'c> RenderSys<'c> {
         Self { ctx }
     }
 
-    fn draw_image(&mut self, id: &'static str, pos: (f32, f32), assets: &AssetStorage) {
-        if let Some(image) = assets.images.get(id) {
+    fn draw_image(&mut self, id: String, pos: (f32, f32), assets: &AssetStorage) {
+        if let Some(image) = assets.images.get(&id) {
             let point = graphics::Point2::new(pos.0, pos.1);
             graphics::set_color(self.ctx, WHITE).unwrap();
             graphics::draw(self.ctx, image, point, 0.0).unwrap();
         } else {
             // TODO: Log that we didn't find the image with id
         }
-    }
-
-    fn draw_glyph(&mut self, id: char, pos: (f32, f32), assets: &AssetStorage) {
-        let point = graphics::Point2::new(pos.0, pos.1);
-        let glyph = assets.glyphs.get(&id).unwrap();
-        graphics::set_color(self.ctx, WHITE).unwrap();
-        graphics::draw(self.ctx, glyph, point, 0.0).unwrap();
     }
 }
 
@@ -243,19 +238,18 @@ impl<'a, 'c> System<'a> for RenderSys<'c> {
         // Draw map
         for (point, tile) in &map.map {
             // if not in viewport, continue
-
-            self.draw_glyph(tile.glyph, point.as_float_coord_tuple(), &assets);
+            if tile.tile_type.is_some() {
+                let image_id = assets.tiles.get(tile.tile_type.as_ref().unwrap()).unwrap();
+                self.draw_image(image_id.to_string(), point.as_float_coord_tuple(), &assets);
+            }
         }
 
         // Draw entities
         for (r, p) in (&render_comp, &position_comp).join() {
             match r.render_type {
                 RenderType::Image { id } => {
-                    self.draw_image(id, (p.x, p.y), &assets);
+                    self.draw_image(id.to_string(), (p.x, p.y), &assets);
                 },
-                RenderType::Glyph { id } => {
-                    self.draw_glyph(id, (p.x, p.y), &assets);
-                }
             }
         }
         info!("-> RenderSys");

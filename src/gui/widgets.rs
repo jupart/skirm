@@ -1,7 +1,7 @@
 use ggez::{graphics, Context};
 use ggez::graphics::{Color, Point2, Rect, Text, DrawMode};
 
-use asset_storage::AssetStorage;
+use crate::asset_storage::AssetStorage;
 
 pub struct PosHint {
     pub x: f32,

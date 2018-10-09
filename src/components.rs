@@ -3,9 +3,11 @@ use specs::{VecStorage, World};
 use std::collections::HashMap;
 use std::time::Duration;
 
-use item::{Weapon, Item};
-use rendering::RenderType;
-use map::{SkirmMap, MapPoint};
+use crate::{
+    item::{Weapon, Item},
+    rendering::RenderType,
+    map::{SkirmMap, MapPoint},
+};
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum TurnPhase {

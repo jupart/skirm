@@ -4,19 +4,25 @@ use ggez::{audio, Context};
 use ggez::graphics::{Image, Font, Text};
 use std::collections::HashMap;
 
-use SkirmResult;
+use crate::SkirmResult;
+use crate::map::tile::TileType;
 
 pub struct AssetStorage {
     pub images: HashMap<String, Image>,
     pub sounds: HashMap<String, audio::Source>,
+    pub tiles: HashMap<TileType, String>,
     pub font: Font,
     pub glyphs: HashMap<char, Text>,
 }
 
 impl AssetStorage {
     pub fn new(ctx: &mut Context) -> SkirmResult<Self> {
-        let map1 = HashMap::new();
-        let map2 = HashMap::new();
+        let images = HashMap::new();
+        let sounds = HashMap::new();
+
+        let mut tiles = HashMap::new();
+        tiles.insert(TileType::Ground, "blue_box".to_string());
+
         let font = Font::new(ctx, "/fonts/FiraMono-Regular.ttf", 11)?;
         let mut glyphs = HashMap::new();
 
@@ -26,8 +32,9 @@ impl AssetStorage {
         }
 
         Ok(Self {
-            images: map1,
-            sounds: map2,
+            images,
+            sounds,
+            tiles,
             font,
             glyphs,
         })
