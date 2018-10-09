@@ -70,7 +70,7 @@ impl<'a> System<'a> for ActSys {
     type SystemData = (
         Fetch<'a, DeltaTime>,
         WriteStorage<'a, StatsComp>,
-        WriteStorage<'a, ActionComp>,
+        WriteStorage<'a, ActComp>,
         WriteStorage<'a, PositionComp>,
         ReadStorage<'a, EquipmentComp>,
         Fetch<'a, SkirmMap>,

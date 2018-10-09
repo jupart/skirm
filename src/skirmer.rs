@@ -36,7 +36,7 @@ impl SkirmerFactory {
             .with(PositionComp::new(x, y))
             .with(RenderComp { render_type: RenderType::Image { id: "blue_box" } })
             .with(StatsComp::default())
-            .with(ActionComp::new())
+            .with(ActComp::new())
             .with(EquipmentComp::new(weapon, items))
             .with(TurnComp::default())
             .build();

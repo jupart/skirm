@@ -13,7 +13,7 @@ impl<'a> System<'a> for PlanSys {
     type SystemData = (
         Fetch<'a, SkirmMap>,
         FetchMut<'a, SkirmerInput>,
-        WriteStorage<'a, ActionComp>,
+        WriteStorage<'a, ActComp>,
         ReadStorage<'a, PositionComp>,
         ReadStorage<'a, StatsComp>,
         WriteStorage<'a, TurnComp>,
