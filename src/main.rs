@@ -43,8 +43,8 @@ fn main() -> SkirmResult {
     enable_backtrace();
 
     info!("Creating Context");
-    let mut ctx = ContextBuilder::new("skirm", "jupart")
-        .window_setup(conf::WindowSetup::default().title("skirm"))
+    let mut ctx = ContextBuilder::new("aok", "jupart")
+        .window_setup(conf::WindowSetup::default().title("aok"))
         .window_mode(conf::WindowMode::default().dimensions(250, 450))
         .add_resource_path("resources")
         .build()

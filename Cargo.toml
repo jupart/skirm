@@ -1,5 +1,5 @@
 [package]
-name = "skirm"
+name = "aok"
 version = "0.1.0"
 authors = ["jupart <justinwpartain1@gmail.com>"]
 edition = '2018'
@@ -7,14 +7,24 @@ edition = '2018'
 [dependencies]
 specs = "0.10.0"
 specs-derive = "0.1.0"
-serde_derive = "1.0.27"
-serde = "1.0.27"
 pathfinding = "0.6.10"
 ascii = "0.8.6"
-ron = "0.2.0"
 line_drawing = "0.7.0"
+
+# config, entity and item defines
+ron = "0.2.0"
+serde_derive = "1.0.27"
+serde = "1.0.27"
+
+# logging
 env_logger = "0.5.10"
 log = "0.4.2"
+
+# ncollide
+approx = "0.3.0"
+alga = "0.7.0"
+nalgebra = "0.16.0"
+ncollide2d = "0.17.0"
 
 [dependencies.ggez]
 version = "0.4"
