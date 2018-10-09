@@ -67,7 +67,7 @@ impl<'a, 'b> Game<'a, 'b> {
         info!("Build system dispatcher");
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .add(ActSys, "action", &[])
-            // .add(PlanSys, "player_input", &[])
+            .add(PlanSys, "plan", &[])
             .add(PositionSys, "position", &[])
             .add(StatsSys, "stats", &[])
             .add(SoundSys, "sound", &[])
@@ -99,8 +99,6 @@ impl<'a, 'b> Game<'a, 'b> {
     fn update_game(&mut self, ctx: &mut Context) {
         self.print_fps_to_info(ctx);
 
-        self.update_current_skirmer_turn();
-
         // Update delta time for frame
         let dt = &timer::get_delta(ctx);
         self.world.write_resource::<DeltaTime>().delta = *dt;
@@ -115,34 +113,6 @@ impl<'a, 'b> Game<'a, 'b> {
 
     fn print_fps_to_info(&self, ctx: &mut Context) {
         info!("FPS: {}", timer::get_fps(ctx));
-    }
-
-    fn update_current_skirmer_turn(&mut self) {
-        let mut turn_comps = self.world.write::<TurnComp>();
-        let mut input = self.world.write_resource::<SkirmerInput>();
-        let mut start_new_turn = false;
-
-        {
-            let active_turn_comp = turn_comps.get_mut(input.ent).unwrap();
-
-            if active_turn_comp.phase == TurnPhase::Finish {
-                start_new_turn = true;
-                active_turn_comp.phase = TurnPhase::FirstAction;
-
-                // Increment skirmer turn
-                if input.ent == *self.skirmers.last().unwrap() {
-                    input.ent = self.skirmers[0];
-                } else {
-                    let active_idx = self.skirmers.binary_search(&input.ent).unwrap() + 1;
-                    input.ent = self.skirmers[active_idx];
-                }
-            }
-        }
-
-        if start_new_turn {
-            let new_active_turn_comp = turn_comps.get_mut(input.ent).unwrap();
-            new_active_turn_comp.phase = TurnPhase::FirstAction;
-        }
     }
 }
 

@@ -1,0 +1,152 @@
+        let (skirmmap, mut input, mut action, position, stats, mut turn) = data;
+
+        let turn = turn.get_mut(input.ent).unwrap();
+
+        if input.pending_command.is_none()
+            || input.command_point.is_none()
+            || turn.phase == TurnPhase::Start
+            || turn.phase == TurnPhase::Finish
+        {
+            info!("-> PlanSys");
+            return;
+        }
+
+        let stats = stats.get(input.ent).unwrap();
+        let p = position.get(input.ent).unwrap();
+        let a = action.get_mut(input.ent).unwrap();
+
+        let pos = MapPoint::from_pixel_coord(p.x as i32, p.y as i32);
+        let to = input.command_point.map(|(x, y)| MapPoint::from_pixel_coord(x, y)).unwrap();
+        match input.pending_command.unwrap() {
+            PendingCommand::Move => {
+                match MoveToPoint::new(pos, to, &*skirmmap) {
+                    Ok(move_to_point) => {
+                        if turn.try_update_move(&move_to_point, stats.move_per_turn).is_ok() {
+                            turn.increment();
+                            a.current_action = Action::MoveTo(move_to_point);
+                        } else {
+                            a.current_action = Action::Idle;
+                        }
+                    },
+                    Err(()) => {
+                        a.current_action = Action::Idle;
+                    },
+                }
+            },
+            PendingCommand::Attack => {
+                if skirmmap.has_line_of_sight(&pos, &to) {
+                    a.current_action = Action::AttackAt(to);
+                    turn.increment();
+                } else {
+                    a.current_action = Action::Idle;
+                }
+            }
+        }
+        input.pending_command = None;
+        input.command_point = None;
+
+// impl MoveToPoint {
+//     pub fn new(
+//         current_pos: MapPoint,
+//         move_to: MapPoint,
+//         map: &SkirmMap
+//     ) -> Result<Self, ()> {
+//         match map.pathfind(&current_pos, &move_to) {
+//             Some(points) => {
+//                 Ok(Self {
+//                     move_time: Duration::new(0, 0),
+//                     point_stack: points,
+//                 })
+//             },
+//             None => Err(()),
+//         }
+//     }
+// }
+
+        // self.update_current_skirmer_turn();
+
+
+    // fn update_current_skirmer_turn(&mut self) {
+    //     let mut turn_comps = self.world.write::<TurnComp>();
+    //     let mut input = self.world.write_resource::<SkirmerInput>();
+    //     let mut start_new_turn = false;
+
+    //     {
+    //         let active_turn_comp = turn_comps.get_mut(input.ent).unwrap();
+
+    //         if active_turn_comp.phase == TurnPhase::Finish {
+    //             start_new_turn = true;
+    //             active_turn_comp.phase = TurnPhase::FirstAction;
+
+    //             // Increment skirmer turn
+    //             if input.ent == *self.skirmers.last().unwrap() {
+    //                 input.ent = self.skirmers[0];
+    //             } else {
+    //                 let active_idx = self.skirmers.binary_search(&input.ent).unwrap() + 1;
+    //                 input.ent = self.skirmers[active_idx];
+    //             }
+    //         }
+    //     }
+
+    //     if start_new_turn {
+    //         let new_active_turn_comp = turn_comps.get_mut(input.ent).unwrap();
+    //         new_active_turn_comp.phase = TurnPhase::FirstAction;
+    //     }
+    // }
+
+let change_to = match a.current_action {
+    Action::MoveTo(ref mut move_to_point) => self.handle_move(move_to_point, p, dt),
+    Action::AttackAt(point) => {
+        self.handle_attack(&MapPoint::from_pixel_coord(p.x as i32, p.y as i32), &point, e, &map, &mut gun_effects, &mut stats)
+    },
+    Action::Idle => None,
+};
+
+if change_to.is_some() {
+    a.current_action = change_to.unwrap();
+}
+
+fn position_close_to(&self, x1: f32, x2: f32) -> bool {
+    let fluff = 1.0;
+    (x2 - fluff <= x1)
+        && (x1 <= x2 + fluff)
+}
+
+fn handle_move(&self, mtp: &mut MoveToPoint, pos: &mut PositionComp, dt: f32) -> Option<Action> {
+    let mut change_to = None;
+
+    let (x, y) = {
+        let points_iter = mtp.point_stack.get_mut(0).unwrap();
+        points_iter.as_float_coord_tuple()
+    };
+    let speed = 50.0;
+
+    if self.position_close_to(pos.x, x)
+    && self.position_close_to(pos.y, y) {
+        pos.x = x;
+        pos.y = y;
+        mtp.point_stack.remove(0);
+        if mtp.point_stack.is_empty() {
+            change_to = Some(Action::Idle);
+        }
+    } else {
+        let vec = (pos.x - x, pos.y - y);
+        let mag = (vec.0.powf(2.0) + vec.1.powf(2.0)).sqrt();
+        let unit = (vec.0 / mag, vec.1 / mag);
+        let move_vec = (unit.0 * speed * dt, unit.1 * speed * dt);
+        pos.x -= move_vec.0;
+        pos.y -= move_vec.1;
+    }
+
+    change_to
+}
+
+fn handle_attack(&self, from: &MapPoint, to: &MapPoint, equipment: &EquipmentComp, map: &SkirmMap, effects: &mut GunshotEffects, stats: &mut WriteStorage<StatsComp>) -> Option<Action> {
+    if map.has_occupant(to) {
+        effects.effects.push(GunshotEffect::new(from.clone(), to.clone()));
+
+        // play attack sound
+        self.apply_damage(map.get_occupant(to).unwrap(), &equipment.weapon, tile_distance(from, *to), stats);
+    }
+    Some(Action::Idle)
+}

@@ -38,7 +38,6 @@ impl SkirmerFactory {
             .with(StatsComp::default())
             .with(ActComp::new())
             .with(EquipmentComp::new(weapon, items))
-            .with(TurnComp::default())
             .build();
 
         map.add_occupant(ent, tile_point).map(|()| ent)

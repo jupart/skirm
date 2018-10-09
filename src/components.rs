@@ -6,16 +6,16 @@ mod position;
 mod render;
 mod sound;
 mod stats;
-mod turn;
+// mod turn;
 
 pub use self::{
-    act::{ActComp, MoveToPoint, Action},
+    act::{ActComp, Move},
     equipment::EquipmentComp,
     position::PositionComp,
     render::RenderComp,
     sound::{SoundType, SoundComp},
     stats::StatsComp,
-    turn::{TurnPhase, TurnComp},
+    // turn::{TurnPhase, TurnComp},
 };
 
 pub fn register_components(world: &mut World) {
@@ -25,5 +25,5 @@ pub fn register_components(world: &mut World) {
     world.register::<ActComp>();
     world.register::<StatsComp>();
     world.register::<EquipmentComp>();
-    world.register::<TurnComp>();
+    // world.register::<TurnComp>();
 }
