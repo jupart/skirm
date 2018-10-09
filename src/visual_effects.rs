@@ -24,7 +24,7 @@ impl GunshotEffect {
 
         let mut lines_to_draw = Vec::new();
         for _i in 0..draws {
-            let mut first_point = points_left[0].clone();
+            let first_point = points_left[0].clone();
 
             for (i, point) in points_left.iter().enumerate() {
                 let distance = pixel_distance(first_point, *point);
