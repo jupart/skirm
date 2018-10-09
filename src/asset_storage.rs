@@ -62,12 +62,13 @@ impl AssetStorage {
         (name, ggez_path_str)
     }
 
-    pub fn load_images(&mut self, _ctx: &mut Context) -> SkirmResult {
+    pub fn load_images(&mut self, ctx: &mut Context) -> SkirmResult {
         use std::fs;
         let dirs = fs::read_dir("./resources/images")?;
 
-        for directory in dirs {
-            let (_name, _ggez_path_str) = self.get_resource(&directory.unwrap());
+        for path in dirs {
+            let (name, ggez_path_str) = self.get_resource(&path.unwrap());
+            self.images.insert(name, Image::new(ctx, ggez_path_str).unwrap());
         }
 
         Ok(())
