@@ -1,6 +1,6 @@
 use ggez::{timer, event, graphics, Context};
 use ggez::event::{Keycode, Mod, MouseButton};
-use ggez::graphics::{Point2, Rect};
+use ggez::graphics::{Point2, Vector2, Rect};
 use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
 
 use std::collections::HashMap;
@@ -8,14 +8,14 @@ use std::time::Duration;
 
 use crate::{
     asset_storage::AssetStorage,
+    camera::Camera,
     components::*,
     systems::*,
     rendering::BLACK,
     resources::DeltaTime,
-    // input::{SkirmerInput, PendingCommand},
     input::SkirmerInput,
     item::ItemFactory,
-    skirmer::{SkirmerFactory, SkirmerType::Fighter, SkirmerType::Sniper},
+    skirmer::{SkirmerFactory, SkirmerType::Fighter},
     map::{MapPoint, SkirmMap},
     // gui::{Gui},
     visual_effects::{GunshotEffect, GunshotEffects},
@@ -24,13 +24,14 @@ use crate::{
 use crate::SkirmResult;
 
 pub struct Game<'a, 'b> {
-    pub world: World,
-    pub skirmers: Vec<Entity>,
-    pub p1_ent: Entity,
+    world: World,
+    skirmers: Vec<Entity>,
+    p1_ent: Entity,
     // pub gui: Gui,
-    pub dispatcher: Dispatcher<'a, 'b>,
-    pub has_focus: bool,
-    pub paused: bool,
+    dispatcher: Dispatcher<'a, 'b>,
+    has_focus: bool,
+    paused: bool,
+    camera: Camera,
 }
 
 impl<'a, 'b> Game<'a, 'b> {
@@ -52,10 +53,12 @@ impl<'a, 'b> Game<'a, 'b> {
 
         info!("Create entities");
         let p1_ent = skirmer_factory.create_skirmer(2, 2, &Fighter, &item_factory, &mut map, &mut world).unwrap();
-        // let npc_ent = skirmer_factory.create_skirmer(2, 4, &Sniper, &item_factory, &mut map, &mut world).unwrap();
         let skirmers = vec![p1_ent];
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();
+
+        info!("Create camera");
+        let camera = Camera::new(250, 450);
 
         info!("Add specs shared resources");
         world.add_resource(asset_storage);
@@ -86,6 +89,7 @@ impl<'a, 'b> Game<'a, 'b> {
             dispatcher,
             has_focus: true,
             paused: false,
+            camera,
         })
     }
 
@@ -103,12 +107,24 @@ impl<'a, 'b> Game<'a, 'b> {
         let dt = &timer::get_delta(ctx);
         self.world.write_resource::<DeltaTime>().delta = *dt;
 
+        self.update_camera(ctx);
+
         info!("  <- Dispatch the specs systems");
         self.dispatcher.dispatch(&self.world.res);
         info!("  -> Dispatch the specs systems");
 
         // Perform specs maintenance, removing entities, etc.
         self.world.maintain();
+    }
+
+    fn update_camera(&mut self, ctx: &mut Context) {
+        let time = self.world.read_resource::<DeltaTime>();
+        let pos_components = self.world.read::<PositionComp>();
+        let input = self.world.read_resource::<SkirmerInput>();
+        let player_pos = pos_components.get(input.ent).unwrap();
+
+        self.camera.focus = Some(Point2::new(player_pos.x, player_pos.y));
+        self.camera.update_center(time.as_dt());
     }
 
     fn print_fps_to_info(&self, ctx: &mut Context) {
@@ -142,7 +158,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
 
         // Entity rendering via RenderSys
         {
-            let mut rs = RenderSys::new(ctx);
+            let mut rs = RenderSys::new(ctx, &self.camera);
             rs.run_now(&self.world.res);
         }
 
@@ -211,10 +227,11 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     fn resize_event(&mut self, ctx: &mut Context, width: u32, height: u32) {
         let rect = Rect::new(0.0, 0.0, width as f32, height as f32);
         graphics::set_screen_coordinates(ctx, rect).unwrap();
+        self.camera.update_screen(width as f32, height as f32);
+
         // self.gui.window_resized(width, height);
     }
 
-    // fn mouse_button_up_event(&mut self, _ctx: &mut Context, _button: MouseButton, x: i32, y: i32) {
     // fn mouse_motion_event(&mut self, _state: MouseState, _x: i32, _y: i32, _xrel: i32, _yrel: i32) { ... }
     // fn mouse_wheel_event(&mut self, _x: i32, _y: i32) { ... }
     // fn controller_button_down_event(&mut self, _btn: Button, _instance_id: i32) { ... }

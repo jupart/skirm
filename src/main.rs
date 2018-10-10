@@ -8,6 +8,7 @@ extern crate ascii;
 extern crate pathfinding;
 extern crate line_drawing;
 extern crate env_logger;
+extern crate ncollide2d;
 
 #[macro_use]
 extern crate serde_derive;
@@ -33,6 +34,7 @@ mod map;
 mod input;
 mod gui;
 mod visual_effects;
+mod camera;
 
 use crate::game::Game;
 
