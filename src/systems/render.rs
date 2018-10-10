@@ -1,13 +1,33 @@
-use specs::{Fetch, System, ReadStorage, Join};
+use specs::{Fetch, System, WriteStorage, ReadStorage, Join};
 use ggez::{graphics, graphics::Point2, Context};
 
 use crate::{
     asset_storage::AssetStorage,
     camera::Camera,
     components::*,
-    rendering::{RenderType, WHITE},
     map::SkirmMap,
+    resources::DeltaTime,
 };
+
+pub struct AnimSys;
+impl<'a> System<'a> for AnimSys {
+    type SystemData = (
+        Fetch<'a, DeltaTime>,
+        WriteStorage<'a, AnimComp>,
+        WriteStorage<'a, SpriteComp>,
+    );
+
+    fn run(&mut self, (dt, mut anim_comp, mut sprite_comp): Self::SystemData) {
+        info!("<- AnimSys");
+        for (a, s) in (&mut anim_comp, &mut sprite_comp).join() {
+            a.current_time += dt.delta;
+            if a.current_time > a.delay {
+                s.id = a.increment_frame();
+            }
+        }
+        info!("-> AnimSys");
+    }
+}
 
 pub struct RenderSys<'b, 'c> {
     ctx: &'c mut Context,
@@ -36,11 +56,11 @@ impl<'a, 'b, 'c> System<'a> for RenderSys<'b, 'c> {
     type SystemData = (
         Fetch<'a, AssetStorage>,
         Fetch<'a, SkirmMap>,
-        ReadStorage<'a, RenderComp>,
+        ReadStorage<'a, SpriteComp>,
         ReadStorage<'a, PositionComp>,
     );
 
-    fn run(&mut self, (assets, map, render_comp, position_comp): Self::SystemData) {
+    fn run(&mut self, (assets, map, sprite_comp, position_comp): Self::SystemData) {
         info!("<- RenderSys");
         // Draw map
         for (point, tile) in &map.map {
@@ -52,12 +72,8 @@ impl<'a, 'b, 'c> System<'a> for RenderSys<'b, 'c> {
         }
 
         // Draw entities
-        for (r, p) in (&render_comp, &position_comp).join() {
-            match r.render_type {
-                RenderType::Image { id } => {
-                    self.draw_image(id.to_string(), (p.x, p.y), &assets);
-                },
-            }
+        for (s, p) in (&sprite_comp, &position_comp).join() {
+            self.draw_image(s.id.to_string(), (p.x, p.y), &assets);
         }
         info!("-> RenderSys");
     }

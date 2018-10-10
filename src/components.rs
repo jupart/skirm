@@ -12,7 +12,7 @@ pub use self::{
     act::{ActComp, Move},
     equipment::EquipmentComp,
     position::PositionComp,
-    render::RenderComp,
+    render::{SpriteComp, AnimComp, WHITE, BLACK},
     sound::{SoundType, SoundComp},
     stats::StatsComp,
     // turn::{TurnPhase, TurnComp},
@@ -20,7 +20,8 @@ pub use self::{
 
 pub fn register_components(world: &mut World) {
     world.register::<PositionComp>();
-    world.register::<RenderComp>();
+    world.register::<AnimComp>();
+    world.register::<SpriteComp>();
     world.register::<SoundComp>();
     world.register::<ActComp>();
     world.register::<StatsComp>();
