@@ -69,11 +69,11 @@ impl<'a, 'b> Game<'a, 'b> {
 
         info!("Build system dispatcher");
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
-            .add(ActSys, "action", &[])
             .add(PlanSys, "plan", &[])
-            .add(PositionSys, "position", &[])
-            .add(StatsSys, "stats", &[])
-            .add(SoundSys, "sound", &[])
+            .add(ActSys, "act", &["plan"])
+            .add(StatsSys, "stats", &["act"])
+            .add(SoundSys, "sound", &["act"])
+            .add(AnimSys, "anim", &["act"])
             .build();
 
         // info!("Build gui");

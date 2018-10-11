@@ -12,17 +12,32 @@ use crate::{
 pub struct AnimSys;
 impl<'a> System<'a> for AnimSys {
     type SystemData = (
+        Fetch<'a, AssetStorage>,
         Fetch<'a, DeltaTime>,
         WriteStorage<'a, AnimComp>,
         WriteStorage<'a, SpriteComp>,
     );
 
-    fn run(&mut self, (dt, mut anim_comp, mut sprite_comp): Self::SystemData) {
+    fn run(&mut self, (assets, dt, mut anim_comp, mut sprite_comp): Self::SystemData) {
         info!("<- AnimSys");
         for (a, s) in (&mut anim_comp, &mut sprite_comp).join() {
             a.current_time += dt.delta;
+            let frames = assets.animations.get(&a.id).unwrap();
+
             if a.current_time > a.delay {
-                s.id = a.increment_frame();
+                a.frame_num += 1;
+                if a.frame_num >= frames.len() as u32 {
+                    if a.repeat {
+                        a.frame_num = 0;
+                    }
+                }
+                a.reset_time();
+                a.dirty = true;
+            }
+
+            if a.dirty {
+                s.id = frames.get(a.frame_num as usize).unwrap().clone();
+                a.dirty = false;
             }
         }
         info!("-> AnimSys");

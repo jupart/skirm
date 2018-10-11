@@ -1,4 +1,4 @@
-use specs::{Fetch, FetchMut, System, ReadStorage, WriteStorage};
+use specs::{Fetch, System, WriteStorage};
 
 use crate::{components::*, input::SkirmerInput};
 

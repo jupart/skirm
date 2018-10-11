@@ -11,6 +11,7 @@ pub struct AssetStorage {
     pub images: HashMap<String, Image>,
     pub sounds: HashMap<String, audio::Source>,
     pub tiles: HashMap<TileType, String>,
+    pub animations: HashMap<String, Vec<String>>,
     pub font: Font,
     pub glyphs: HashMap<char, Text>,
 }
@@ -22,6 +23,12 @@ impl AssetStorage {
 
         let mut tiles = HashMap::new();
         tiles.insert(TileType::Ground, "blue_box".to_string());
+
+        let mut animations = HashMap::new();
+        animations.insert("default".to_string(), vec![
+            "blue_box".to_string(),
+            "green_box".to_string(),
+        ]);
 
         let font = Font::new(ctx, "/fonts/FiraMono-Regular.ttf", 11)?;
         let mut glyphs = HashMap::new();
@@ -35,6 +42,7 @@ impl AssetStorage {
             images,
             sounds,
             tiles,
+            animations,
             font,
             glyphs,
         })

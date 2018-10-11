@@ -1,17 +1,16 @@
-use specs::{Entity, Fetch, FetchMut, System, ReadStorage, WriteStorage, Join};
+use specs::{Entity, Fetch, System, WriteStorage, Join};
 
 use crate::{
     components::*,
     resources::DeltaTime,
-    map::{SkirmMap, MapPoint, tile_distance},
-    visual_effects::{GunshotEffect, GunshotEffects},
-    item::{Weapon},
+    map::SkirmMap,
+    item::Weapon,
 };
 
 // Performs entities' `current_action`s
 pub struct ActSys;
 impl ActSys {
-    fn apply_damage(&self, ent: Entity, _item: &Weapon, _distance: u16, stats: &mut WriteStorage<StatsComp>) {
+    fn _apply_damage(&self, ent: Entity, _item: &Weapon, _distance: u16, stats: &mut WriteStorage<StatsComp>) {
         let ent_stats = stats.get_mut(ent).unwrap();
         if ent_stats.health < 50 {
             ent_stats.health = 0;
@@ -27,17 +26,14 @@ impl<'a> System<'a> for ActSys {
         WriteStorage<'a, StatsComp>,
         WriteStorage<'a, ActComp>,
         WriteStorage<'a, PositionComp>,
-        ReadStorage<'a, EquipmentComp>,
         Fetch<'a, SkirmMap>,
-        FetchMut<'a, GunshotEffects>,
     );
 
-    fn run(&mut self, data: Self::SystemData) {
+    fn run(&mut self, (time, mut _stats, action, mut pos, _map): Self::SystemData) {
         info!("<- ActSys");
-        let (time, mut stats, action_comp, mut position_comp, equipment, map, mut gun_effects) = data;
         let dt = time.as_dt();
 
-        for (a, p, e) in (&action_comp, &mut position_comp, &equipment).join() {
+        for (a, p) in (&action, &mut pos).join() {
             if a.move_action.is_some_direction() {
                 let speed = 100.0;
                 info!("Ent moving {:?}", a.move_action);

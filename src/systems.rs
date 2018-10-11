@@ -9,7 +9,7 @@ pub use self::{
     act::ActSys,
     plan::PlanSys,
     position::PositionSys,
-    render::RenderSys,
+    render::{RenderSys, AnimSys},
     sound::SoundSys,
     stats::StatsSys,
 };
