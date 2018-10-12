@@ -27,7 +27,6 @@ mod systems;
 mod components;
 mod game;
 mod resources;
-mod rendering;
 mod skirmer;
 mod item;
 mod map;
