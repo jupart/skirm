@@ -1,0 +1,14 @@
+{
+    "idle": [
+        "blue_box",
+    ],
+    "move": [
+        "blue_box",
+        "green_box",
+    ],
+    "default": [
+        "blue_box",
+        "green_box",
+    ],
+}
+

@@ -8,6 +8,7 @@ pub struct Move {
     pub down: bool,
     pub left: bool,
     pub right: bool,
+    pub dirty: bool,
 }
 
 impl Move {
@@ -17,6 +18,7 @@ impl Move {
             down: false,
             left: false,
             right: false,
+            dirty: false,
         }
     }
 

@@ -1,4 +1,5 @@
-use std::fs::DirEntry;
+use ron;
+use std::{fs::{File, DirEntry}, io::Read};
 
 use ggez::{audio, Context};
 use ggez::graphics::{Image, Font, Text};
@@ -20,15 +21,10 @@ impl AssetStorage {
     pub fn new(ctx: &mut Context) -> SkirmResult<Self> {
         let images = HashMap::new();
         let sounds = HashMap::new();
+        let animations = HashMap::new();
 
         let mut tiles = HashMap::new();
         tiles.insert(TileType::Ground, "blue_box".to_string());
-
-        let mut animations = HashMap::new();
-        animations.insert("default".to_string(), vec![
-            "blue_box".to_string(),
-            "green_box".to_string(),
-        ]);
 
         let font = Font::new(ctx, "/fonts/FiraMono-Regular.ttf", 11)?;
         let mut glyphs = HashMap::new();
@@ -82,7 +78,21 @@ impl AssetStorage {
         Ok(())
     }
 
-    pub fn play(&self, sound_name: &'static str) {
+    pub fn load_animations(&mut self) -> SkirmResult {
+        // Animations - open the file, read it into a buffer, deserialize with serde
+        let mut anim_file = File::open("./resources/animations.ron")?;
+        let mut buffer = String::new();
+        anim_file.read_to_string(&mut buffer)?;
+        let animations: HashMap<String, Vec<String>> = match ron::de::from_str(buffer.as_str()) {
+            Ok(result) => result,
+            Err(e) => panic!("Error reading animations.ron, format is corrupt. {:?}", e),
+        };
+
+        self.animations = animations;
+        Ok(())
+    }
+
+    pub fn _play(&self, sound_name: &'static str) {
         let sound = &self.sounds[sound_name];
         sound.play().unwrap();
     }

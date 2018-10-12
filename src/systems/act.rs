@@ -26,15 +26,21 @@ impl<'a> System<'a> for ActSys {
         WriteStorage<'a, StatsComp>,
         WriteStorage<'a, ActComp>,
         WriteStorage<'a, PositionComp>,
+        WriteStorage<'a, AnimComp>,
         Fetch<'a, SkirmMap>,
     );
 
-    fn run(&mut self, (time, mut _stats, action, mut pos, _map): Self::SystemData) {
+    fn run(&mut self, (time, mut _stats, mut action, mut pos, mut anim, _map): Self::SystemData) {
         info!("<- ActSys");
         let dt = time.as_dt();
 
-        for (a, p) in (&action, &mut pos).join() {
+        for (a, p, n) in (&mut action, &mut pos, &mut anim).join() {
             if a.move_action.is_some_direction() {
+                if a.move_action.dirty {
+                    n.change_id(String::from("move"), true);
+                    a.move_action.dirty = false;
+                }
+
                 let speed = 100.0;
                 info!("Ent moving {:?}", a.move_action);
                 if a.move_action.up {
@@ -48,6 +54,11 @@ impl<'a> System<'a> for ActSys {
                 }
                 if a.move_action.right {
                     p.x += speed * dt;
+                }
+            } else {
+                if a.move_action.dirty {
+                    n.change_id(String::from("idle"), true);
+                    a.move_action.dirty = false;
                 }
             }
             if a.attack_action.is_some() {

@@ -11,11 +11,19 @@ impl<'a> System<'a> for PlanSys {
         WriteStorage<'a, ActComp>,
     );
 
-    fn run(&mut self, data: Self::SystemData) {
+    fn run(&mut self, (input, mut act): Self::SystemData) {
         info!("<- PlanSys");
 
-        let (input, mut act) = data;
         let act_comp = act.get_mut(input.ent).unwrap();
+
+        let mv = &mut act_comp.move_action;
+        if input.up != mv.up
+            || input.down != mv.down
+            || input.left != mv.left
+            || input.right != mv.right
+        {
+            mv.dirty = true;
+        }
 
         act_comp.move_action.up = input.up;
         act_comp.move_action.down = input.down;

@@ -46,6 +46,7 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut map = SkirmMap::load("./resources/maps/test.skirm_map")?;
 
         asset_storage.load_images(ctx)?;
+        asset_storage.load_animations()?;
         asset_storage.load_sounds(ctx)?;
 
         let mut ent1_sounds = HashMap::new();

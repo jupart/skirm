@@ -33,6 +33,7 @@ impl AnimComp {
     }
 
     pub fn change_id(&mut self, id: String, repeat: bool) {
+        info!("Ent changed animation id to {}", id);
         self.id = id;
         self.frame_num = 0;
         self.delay = Duration::from_millis(250);
