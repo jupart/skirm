@@ -1,12 +1,12 @@
 mod stats;
 mod position;
 mod plan;
-mod act;
+mod state;
 mod render;
 mod sound;
 
 pub use self::{
-    act::ActSys,
+    state::StateSys,
     plan::PlanSys,
     position::PositionSys,
     render::{RenderSys, AnimSys},

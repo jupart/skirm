@@ -1,6 +1,6 @@
 use specs::World;
 
-mod act;
+mod state;
 mod equipment;
 mod position;
 mod render;
@@ -9,7 +9,7 @@ mod stats;
 // mod turn;
 
 pub use self::{
-    act::{ActComp, Move},
+    state::{StateComp, Move},
     equipment::EquipmentComp,
     position::PositionComp,
     render::{SpriteComp, AnimComp, WHITE, BLACK},
@@ -23,7 +23,7 @@ pub fn register_components(world: &mut World) {
     world.register::<AnimComp>();
     world.register::<SpriteComp>();
     world.register::<SoundComp>();
-    world.register::<ActComp>();
+    world.register::<StateComp>();
     world.register::<StatsComp>();
     world.register::<EquipmentComp>();
     // world.register::<TurnComp>();

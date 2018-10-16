@@ -11,7 +11,6 @@ use crate::{
     camera::Camera,
     components::*,
     systems::*,
-    rendering::BLACK,
     resources::DeltaTime,
     input::SkirmerInput,
     item::ItemFactory,
@@ -71,7 +70,7 @@ impl<'a, 'b> Game<'a, 'b> {
         info!("Build system dispatcher");
         let dispatcher: Dispatcher<'a, 'b> = DispatcherBuilder::new()
             .add(PlanSys, "plan", &[])
-            .add(ActSys, "act", &["plan"])
+            .add(StateSys, "act", &["plan"])
             .add(StatsSys, "stats", &["act"])
             .add(SoundSys, "sound", &["act"])
             .add(AnimSys, "anim", &["act"])

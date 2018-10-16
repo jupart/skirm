@@ -2,13 +2,18 @@ use specs::{Fetch, System, WriteStorage};
 
 use crate::{components::*, input::SkirmerInput};
 
-// An Input System that verifies and creates an entity's current_action
+// An Input System that verifies and creates an entity's current action
 pub struct PlanSys;
+
+impl PlanSys {
+    fn handle_input(&self) {
+    }
+}
 
 impl<'a> System<'a> for PlanSys {
     type SystemData = (
         Fetch<'a, SkirmerInput>,
-        WriteStorage<'a, ActComp>,
+        WriteStorage<'a, StateComp>,
     );
 
     fn run(&mut self, (input, mut act): Self::SystemData) {
@@ -25,10 +30,10 @@ impl<'a> System<'a> for PlanSys {
             mv.dirty = true;
         }
 
-        act_comp.move_action.up = input.up;
-        act_comp.move_action.down = input.down;
-        act_comp.move_action.left = input.left;
-        act_comp.move_action.right = input.right;
+        mv.up = input.up;
+        mv.down = input.down;
+        mv.left = input.left;
+        mv.right = input.right;
 
         info!("-> PlanSys");
     }

@@ -8,8 +8,8 @@ use crate::{
 };
 
 // Performs entities' `current_action`s
-pub struct ActSys;
-impl ActSys {
+pub struct StateSys;
+impl StateSys {
     fn _apply_damage(&self, ent: Entity, _item: &Weapon, _distance: u16, stats: &mut WriteStorage<StatsComp>) {
         let ent_stats = stats.get_mut(ent).unwrap();
         if ent_stats.health < 50 {
@@ -20,22 +20,22 @@ impl ActSys {
     }
 }
 
-impl<'a> System<'a> for ActSys {
+impl<'a> System<'a> for StateSys {
     type SystemData = (
         Fetch<'a, DeltaTime>,
         WriteStorage<'a, StatsComp>,
-        WriteStorage<'a, ActComp>,
+        WriteStorage<'a, StateComp>,
         WriteStorage<'a, PositionComp>,
         WriteStorage<'a, AnimComp>,
         Fetch<'a, SkirmMap>,
     );
 
     fn run(&mut self, (time, mut _stats, mut action, mut pos, mut anim, _map): Self::SystemData) {
-        info!("<- ActSys");
+        info!("<- StateSys");
         let dt = time.as_dt();
 
         for (a, p, n) in (&mut action, &mut pos, &mut anim).join() {
-            if a.move_action.is_some_direction() {
+            if a.is_moving() {
                 if a.move_action.dirty {
                     n.change_id(String::from("move"), true);
                     a.move_action.dirty = false;
@@ -66,7 +66,7 @@ impl<'a> System<'a> for ActSys {
                 info!("Ent attacking {:?}", point);
             }
         }
-        info!("-> ActSys");
+        info!("-> StateSys");
     }
 }
 

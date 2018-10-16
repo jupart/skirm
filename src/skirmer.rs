@@ -36,7 +36,7 @@ impl SkirmerFactory {
             .with(AnimComp::new(String::from("default"), true))
             .with(SpriteComp::new(String::from("green_box")))
             .with(StatsComp::default())
-            .with(ActComp::new())
+            .with(StateComp::new())
             .build();
 
         map.add_occupant(ent, tile_point).map(|()| ent)

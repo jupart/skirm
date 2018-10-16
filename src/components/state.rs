@@ -29,17 +29,21 @@ impl Move {
 
 #[derive(Component)]
 #[component(VecStorage)]
-pub struct ActComp {
+pub struct StateComp {
     pub move_action: Move,
     pub attack_action: Option<MapPoint>,
 }
 
-impl ActComp {
+impl StateComp {
     pub fn new() -> Self {
         Self {
             move_action: Move::new(),
             attack_action: None,
         }
+    }
+
+    pub fn is_moving(&self) -> bool {
+        self.move_action.is_some_direction()
     }
 }
 
