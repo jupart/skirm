@@ -1,4 +1,4 @@
-use ggez::graphics::{Vector2, Point2};
+use crate::{Point2, Vector2};
 
 const CAMERA_SLOP: f32 = 10.0;
 

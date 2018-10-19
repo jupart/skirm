@@ -2,6 +2,7 @@ use specs::World;
 
 mod state;
 mod equipment;
+mod physics;
 mod position;
 mod render;
 mod sound;
@@ -15,10 +16,13 @@ pub use self::{
     render::{SpriteComp, AnimComp, WHITE, BLACK},
     sound::{SoundType, SoundComp},
     stats::StatsComp,
+    physics::{PhysicsComp, CollideComp},
     // turn::{TurnPhase, TurnComp},
 };
 
 pub fn register_components(world: &mut World) {
+    world.register::<PhysicsComp>();
+    world.register::<CollideComp>();
     world.register::<PositionComp>();
     world.register::<AnimComp>();
     world.register::<SpriteComp>();

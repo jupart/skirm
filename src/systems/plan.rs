@@ -6,8 +6,6 @@ use crate::{components::*, input::SkirmerInput};
 pub struct PlanSys;
 
 impl PlanSys {
-    fn handle_input(&self) {
-    }
 }
 
 impl<'a> System<'a> for PlanSys {

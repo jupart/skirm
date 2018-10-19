@@ -1,12 +1,13 @@
 use ggez::{timer, event, graphics, Context};
 use ggez::event::{Keycode, Mod, MouseButton};
-use ggez::graphics::{Point2, Vector2, Rect};
+use ggez::graphics::{Rect};
 use specs::{World, Dispatcher, DispatcherBuilder, RunNow, Entity};
 
 use std::collections::HashMap;
 use std::time::Duration;
 
 use crate::{
+    Point2, CollisionWorld,
     asset_storage::AssetStorage,
     camera::Camera,
     components::*,
@@ -21,6 +22,8 @@ use crate::{
 };
 
 use crate::SkirmResult;
+
+pub const PLAYER_COLLISION_GROUP: usize = 1;
 
 pub struct Game<'a, 'b> {
     world: World,
@@ -51,6 +54,10 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut ent1_sounds = HashMap::new();
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
+        info!("Create collision world");
+        let collide_world: CollisionWorld = CollisionWorld::new(0.02);
+        world.add_resource(collide_world);
+
         info!("Create entities");
         let p1_ent = skirmer_factory.create_skirmer(2, 2, &Fighter, &item_factory, &mut map, &mut world).unwrap();
         let skirmers = vec![p1_ent];
@@ -74,6 +81,7 @@ impl<'a, 'b> Game<'a, 'b> {
             .add(StatsSys, "stats", &["act"])
             .add(SoundSys, "sound", &["act"])
             .add(AnimSys, "anim", &["act"])
+            .add(PhysicsSys, "physics", &[])
             .build();
 
         // info!("Build gui");

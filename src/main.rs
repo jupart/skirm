@@ -9,6 +9,7 @@ extern crate pathfinding;
 extern crate line_drawing;
 extern crate env_logger;
 extern crate ncollide2d;
+extern crate nalgebra;
 
 #[macro_use]
 extern crate serde_derive;
@@ -38,6 +39,9 @@ mod camera;
 use crate::game::Game;
 
 type SkirmResult<T = ()> = GameResult<T>;
+type CollisionWorld = ncollide2d::world::CollisionWorld<f32, specs::Entity>;
+type Point2 = nalgebra::Point2<f32>;
+type Vector2 = nalgebra::Vector2<f32>;
 
 fn main() -> SkirmResult {
     env_logger::Builder::from_default_env().default_format_timestamp(false).init();
