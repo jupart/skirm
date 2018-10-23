@@ -7,13 +7,13 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use crate::{
-    Point2, CollisionWorld,
+    Point2, CollisionWorld, CollisionObject,
     asset_storage::AssetStorage,
     camera::Camera,
     components::*,
     systems::*,
     resources::DeltaTime,
-    input::SkirmerInput,
+    input::PlayerInputState,
     item::ItemFactory,
     skirmer::{SkirmerFactory, SkirmerType::Fighter},
     map::{MapPoint, SkirmMap},
@@ -24,10 +24,10 @@ use crate::{
 use crate::SkirmResult;
 
 pub const PLAYER_COLLISION_GROUP: usize = 1;
+pub const TILE_COLLISION_GROUP: usize = 2;
 
 pub struct Game<'a, 'b> {
     world: World,
-    skirmers: Vec<Entity>,
     p1_ent: Entity,
     // pub gui: Gui,
     dispatcher: Dispatcher<'a, 'b>,
@@ -45,7 +45,12 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut asset_storage = AssetStorage::new(ctx)?;
         let item_factory = ItemFactory::new()?;
         let skirmer_factory = SkirmerFactory::new();
-        let mut map = SkirmMap::load("./resources/maps/test.skirm_map")?;
+
+        info!("Create collision world");
+        let collide_world: CollisionWorld = CollisionWorld::new(0.02);
+        world.add_resource(collide_world);
+
+        let mut map = SkirmMap::load("./resources/maps/test.skirm_map", &mut world)?;
 
         asset_storage.load_images(ctx)?;
         asset_storage.load_animations()?;
@@ -54,13 +59,8 @@ impl<'a, 'b> Game<'a, 'b> {
         let mut ent1_sounds = HashMap::new();
         ent1_sounds.insert(SoundType::Move, ("sine", true));
 
-        info!("Create collision world");
-        let collide_world: CollisionWorld = CollisionWorld::new(0.02);
-        world.add_resource(collide_world);
-
         info!("Create entities");
         let p1_ent = skirmer_factory.create_skirmer(2, 2, &Fighter, &item_factory, &mut map, &mut world).unwrap();
-        let skirmers = vec![p1_ent];
 
         let gunshot_effects: Vec<GunshotEffect> = Vec::new();
 
@@ -70,7 +70,7 @@ impl<'a, 'b> Game<'a, 'b> {
         info!("Add specs shared resources");
         world.add_resource(asset_storage);
         world.add_resource(DeltaTime { delta: Duration::new(0, 0) });
-        world.add_resource(SkirmerInput::new(p1_ent));
+        world.add_resource(PlayerInputState::new(p1_ent));
         world.add_resource(map);
         world.add_resource(GunshotEffects { effects: gunshot_effects });
 
@@ -91,7 +91,6 @@ impl<'a, 'b> Game<'a, 'b> {
 
         Ok(Self {
             world,
-            skirmers,
             p1_ent,
             // gui,
             dispatcher,
@@ -101,7 +100,7 @@ impl<'a, 'b> Game<'a, 'b> {
         })
     }
 
-    fn draw_effects(&self, ctx: &mut Context, gun_effects: &mut Vec<GunshotEffect>) {
+    fn _draw_effects(&self, ctx: &mut Context, gun_effects: &mut Vec<GunshotEffect>) {
         for effect in &mut *gun_effects {
             effect.draw(ctx);
         }
@@ -115,11 +114,12 @@ impl<'a, 'b> Game<'a, 'b> {
         let dt = &timer::get_delta(ctx);
         self.world.write_resource::<DeltaTime>().delta = *dt;
 
+        self.handle_collisions();
         self.update_camera(ctx);
 
-        info!("  <- Dispatch the specs systems");
+        info!("<- Dispatch the specs systems");
         self.dispatcher.dispatch(&self.world.res);
-        info!("  -> Dispatch the specs systems");
+        info!("-> Dispatch the specs systems");
 
         // Perform specs maintenance, removing entities, etc.
         self.world.maintain();
@@ -128,8 +128,8 @@ impl<'a, 'b> Game<'a, 'b> {
     fn update_camera(&mut self, ctx: &mut Context) {
         let time = self.world.read_resource::<DeltaTime>();
         let pos_components = self.world.read::<PositionComp>();
-        let input = self.world.read_resource::<SkirmerInput>();
-        let player_pos = pos_components.get(input.ent).unwrap();
+        let player_input = self.world.read_resource::<PlayerInputState>();
+        let player_pos = pos_components.get(player_input.ent).unwrap();
 
         self.camera.focus = Some(Point2::new(player_pos.x, player_pos.y));
         self.camera.update_center(time.as_dt());
@@ -137,6 +137,59 @@ impl<'a, 'b> Game<'a, 'b> {
 
     fn print_fps_to_info(&self, ctx: &mut Context) {
         info!("FPS: {}", timer::get_fps(ctx));
+    }
+
+    fn handle_collisions(&self) {
+        info!("<- Checking collisions");
+        let mut col_world = self.world.write_resource::<CollisionWorld>();
+        let mut state_comps = self.world.write::<StateComp>();
+        col_world.update();
+
+        // Save and reuse the same vec each run of the loop so we only allocate once.
+        let contacts_list = &mut Vec::new();
+        for e in col_world.contact_events() {
+            contacts_list.clear();
+            match e {
+                ncollide2d::events::ContactEvent::Started(cobj_handle1, cobj_handle2) => {
+                    if let Some(pair) = (&*col_world).contact_pair(*cobj_handle1, *cobj_handle2) {
+                        println!("Starting collision between {:?} and {:?}", cobj_handle1, cobj_handle2);
+                        pair.contacts(contacts_list);
+                        let cobj1 = col_world.collision_object(*cobj_handle1).expect("Invalid collision object handle");
+                        let cobj2 = col_world.collision_object(*cobj_handle2).expect("Invalid collision object handle");
+
+                        let mut do_collision = |cobj1: &CollisionObject, cobj2: &CollisionObject| {
+                            let entity = cobj1.data();
+                            if cobj2.collision_groups().is_member_of(TILE_COLLISION_GROUP) {
+                                let entity_state = state_comps.get_mut(*entity).expect("Are collision groups blacklisted correctly?");
+                                entity_state.on_ground = true;
+                            }
+                        };
+                        do_collision(cobj1, cobj2);
+                        do_collision(cobj2, cobj1);
+                    }
+                }
+                ncollide2d::events::ContactEvent::Stopped(cobj_handle1, cobj_handle2) => {
+                    if let Some(pair) = (&*col_world).contact_pair(*cobj_handle1, *cobj_handle2) {
+                        println!("Finishing collision between {:?} and {:?}", cobj_handle1, cobj_handle2);
+                        pair.contacts(contacts_list);
+                        let cobj1 = col_world.collision_object(*cobj_handle1).expect("Invalid collision object handle");
+                        let cobj2 = col_world.collision_object(*cobj_handle2).expect("Invalid collision object handle");
+
+                        // Get the entities out of the collision data
+                        let mut do_collision = |cobj1: &CollisionObject, cobj2: &CollisionObject| {
+                            let entity = cobj1.data();
+                            if cobj2.collision_groups().is_member_of(TILE_COLLISION_GROUP) {
+                                let entity_state = state_comps.get_mut(*entity).expect("Are collision groups blacklisted correctly?");
+                                entity_state.on_ground = false;
+                            }
+                        };
+                        do_collision(cobj1, cobj2);
+                        do_collision(cobj2, cobj1);
+                    }
+                }
+            }
+        }
+        info!("-> Checking collisions");
     }
 }
 
@@ -153,13 +206,13 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
 
     fn draw(&mut self, ctx: &mut Context) -> SkirmResult {
         info!("<- Draw Game");
-        let input = self.world.read_resource::<SkirmerInput>();
+        let player_input = self.world.read_resource::<PlayerInputState>();
         let assets = self.world.read_resource::<AssetStorage>();
         let map = self.world.read_resource::<SkirmMap>();
         let mut gun_effects = self.world.write_resource::<GunshotEffects>();
 
         let pos_components = self.world.read::<PositionComp>();
-        let player_pos = pos_components.get(input.ent).unwrap();
+        let player_pos = pos_components.get(player_input.ent).unwrap();
         let pos = MapPoint::from_pixel_coord(player_pos.x as i32, player_pos.y as i32);
 
         graphics::clear(ctx);
@@ -184,25 +237,25 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     }
 
     fn key_down_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
-        let mut input = self.world.write_resource::<SkirmerInput>();
+        let mut input = self.world.write_resource::<PlayerInputState>().input;
 
         match keycode {
-            Keycode::W => input.up = true,
-            Keycode::S => input.down = true,
-            Keycode::A => input.left = true,
-            Keycode::D => input.right = true,
+            Keycode::W => input.up.set(true),
+            Keycode::S => input.down.set(true),
+            Keycode::A => input.left.set(true),
+            Keycode::D => input.right.set(true),
             _ => ()
         }
     }
 
     fn key_up_event(&mut self, _ctx: &mut Context, keycode: Keycode, _keymod: Mod, _repeat: bool) {
-        let mut input = self.world.write_resource::<SkirmerInput>();
+        let mut input = self.world.write_resource::<PlayerInputState>().input;
 
         match keycode {
-            Keycode::W => input.up = false,
-            Keycode::S => input.down = false,
-            Keycode::A => input.left = false,
-            Keycode::D => input.right = false,
+            Keycode::W => input.up.set(false),
+            Keycode::S => input.down.set(false),
+            Keycode::A => input.left.set(false),
+            Keycode::D => input.right.set(false),
             _ => ()
         }
     }
@@ -212,7 +265,7 @@ impl<'a, 'b> event::EventHandler for Game<'a, 'b> {
     }
 
     fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: MouseButton, x: i32, y: i32) {
-        // let mut input = self.world.write_resource::<SkirmerInput>();
+        // let mut input = self.world.write_resource::<InputState>();
 
         // if self.gui.handle_click(Point2::new(x as f32, y as f32)) {
         //     return

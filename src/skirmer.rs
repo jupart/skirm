@@ -46,13 +46,14 @@ impl SkirmerFactory {
             .with(SpriteComp::new(String::from("green_box")))
             .with(StatsComp::default())
             .with(StateComp::new())
-            .with(PhysicsComp::new(true, nalgebra::zero()))
+            .with(PhysicsComp::new(PhysicsType::Moveable, nalgebra::zero()))
             .build();
 
         // Player collision info
         let shape = Cuboid::new(Vector2::new(12.0, 12.0));
         let mut group = CollisionGroups::new();
         group.set_membership(&[PLAYER_COLLISION_GROUP]);
+        group.set_blacklist(&[PLAYER_COLLISION_GROUP]);
         let query_type = GeometricQueryType::Contacts(0.0, 0.0);
 
         let collider = {

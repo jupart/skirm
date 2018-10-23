@@ -6,12 +6,10 @@ use ggez::graphics::{Image, Font, Text};
 use std::collections::HashMap;
 
 use crate::SkirmResult;
-use crate::map::tile::TileType;
 
 pub struct AssetStorage {
     pub images: HashMap<String, Image>,
     pub sounds: HashMap<String, audio::Source>,
-    pub tiles: HashMap<TileType, String>,
     pub animations: HashMap<String, Vec<String>>,
     pub font: Font,
     pub glyphs: HashMap<char, Text>,
@@ -22,9 +20,6 @@ impl AssetStorage {
         let images = HashMap::new();
         let sounds = HashMap::new();
         let animations = HashMap::new();
-
-        let mut tiles = HashMap::new();
-        tiles.insert(TileType::Ground, "blue_box".to_string());
 
         let font = Font::new(ctx, "/fonts/FiraMono-Regular.ttf", 11)?;
         let mut glyphs = HashMap::new();
@@ -37,7 +32,6 @@ impl AssetStorage {
         Ok(Self {
             images,
             sounds,
-            tiles,
             animations,
             font,
             glyphs,

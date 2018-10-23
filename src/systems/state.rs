@@ -34,28 +34,28 @@ impl<'a> System<'a> for StateSys {
 
     fn run(&mut self, (time, mut _stats, mut action, mut pos, mut anim, mut physics, _map): Self::SystemData) {
         info!("<- StateSys");
-        let _dt = time.as_dt();
+        let dt = time.as_dt();
 
         for (a, _p, n, y) in (&mut action, &mut pos, &mut anim, &mut physics).join() {
             if a.is_moving() {
+                info!("Ent moving {:?}", a.move_action);
                 if a.move_action.dirty {
                     n.change_id(String::from("move"), true);
                     a.move_action.dirty = false;
                 }
 
-                let speed = 100.0;
-                info!("Ent moving {:?}", a.move_action);
-                if a.move_action.up {
-                    y.velocity -= Vector2::new(0.0, speed);
+                let speed = 100.0 * dt;
+                if !a.move_action.up.handled && a.move_action.up.state {
+                    y.velocity = Vector2::new(0.0, -speed);
                 }
                 if a.move_action.down {
-                    y.velocity += Vector2::new(0.0, speed);
+                    y.velocity = Vector2::new(0.0, speed);
                 }
                 if a.move_action.left {
-                    y.velocity -= Vector2::new(speed, 0.0);
+                    y.velocity = Vector2::new(-speed, 0.0);
                 }
                 if a.move_action.right {
-                    y.velocity += Vector2::new(speed, 0.0);
+                    y.velocity = Vector2::new(speed, 0.0);
                 }
             } else {
                 if a.move_action.dirty {

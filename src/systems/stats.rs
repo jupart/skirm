@@ -11,16 +11,16 @@ impl<'a> System<'a> for StatsSys {
 
     fn run(&mut self, data: Self::SystemData) {
         info!("<- StatsSys");
-        let (entities, stats) = data;
-        for ent in entities.join() {
-            let ent_stat = stats.get(ent).unwrap();
-            if ent_stat.health == 0 {
-                match entities.delete(ent) {
-                    Err(_e) => (),
-                    _ => (),
-                }
-            }
-        }
+        // let (entities, stats) = data;
+        // for ent in entities.join() {
+        //     let ent_stat = stats.get(ent).unwrap();
+        //     if ent_stat.health == 0 {
+        //         match entities.delete(ent) {
+        //             Err(_e) => (),
+        //             _ => (),
+        //         }
+        //     }
+        // }
         info!("-> StatsSys");
     }
 }

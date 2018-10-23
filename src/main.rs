@@ -40,6 +40,7 @@ use crate::game::Game;
 
 type SkirmResult<T = ()> = GameResult<T>;
 type CollisionWorld = ncollide2d::world::CollisionWorld<f32, specs::Entity>;
+type CollisionObject = ncollide2d::world::CollisionObject<f32, specs::Entity>;
 type Point2 = nalgebra::Point2<f32>;
 type Vector2 = nalgebra::Vector2<f32>;
 

@@ -7,7 +7,7 @@
 // use crate::{
 //     rendering::{WHITE, BLACK},
 //     asset_storage::AssetStorage,
-//     input::SkirmerInput,
+//     input::InputState,
 //     map::{MapPoint, SkirmMap, TILE_WIDTH, TILE_HEIGHT},
 
 // };
@@ -75,7 +75,7 @@
 //         graphics::set_color(ctx, true_white).unwrap();
 //     }
 
-//     pub fn draw(&self, player_pos: &MapPoint, input: &SkirmerInput, assets: &AssetStorage, map: &SkirmMap, ctx: &mut Context) {
+//     pub fn draw(&self, player_pos: &MapPoint, input: &InputState, assets: &AssetStorage, map: &SkirmMap, ctx: &mut Context) {
 //         for widget in &self.widgets {
 //             widget.draw(assets, ctx);
 //         }

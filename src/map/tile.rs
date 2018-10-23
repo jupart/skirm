@@ -1,12 +1,12 @@
 use specs::Entity;
 
-#[derive(Hash, PartialEq, Eq, Debug, Clone)]
+#[derive(Hash, PartialEq, Eq, Debug, Clone, Copy)]
 pub enum TileType {
     Wall,
     Ground,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Tile {
     pub occupant: Option<Entity>,
     pub tile_type: Option<TileType>,

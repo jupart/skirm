@@ -16,7 +16,7 @@ pub use self::{
     render::{SpriteComp, AnimComp, WHITE, BLACK},
     sound::{SoundType, SoundComp},
     stats::StatsComp,
-    physics::{PhysicsComp, CollideComp},
+    physics::{PhysicsComp, CollideComp, PhysicsType},
     // turn::{TurnPhase, TurnComp},
 };
 

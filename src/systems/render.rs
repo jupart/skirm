@@ -78,13 +78,13 @@ impl<'a, 'b, 'c> System<'a> for RenderSys<'b, 'c> {
     fn run(&mut self, (assets, map, sprite_comp, position_comp): Self::SystemData) {
         info!("<- RenderSys");
         // Draw map
-        for (point, tile) in &map.map {
-            // if not in viewport, continue
-            if tile.tile_type.is_some() {
-                let image_id = assets.tiles.get(tile.tile_type.as_ref().unwrap()).unwrap();
-                self.draw_image(image_id.to_string(), point.as_float_coord_tuple(), &assets);
-            }
-        }
+        // for (point, tile) in &map.map {
+        //     // if not in viewport, continue
+        //     if tile.tile_type.is_some() {
+        //         let image_id = assets.tiles.get(tile.tile_type.as_ref().unwrap()).unwrap();
+        //         self.draw_image(image_id.to_string(), point.as_float_coord_tuple(), &assets);
+        //     }
+        // }
 
         // Draw entities
         for (s, p) in (&sprite_comp, &position_comp).join() {

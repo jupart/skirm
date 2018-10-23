@@ -1,3 +1,10 @@
+use ncollide2d::{
+    shape::{Cuboid, ShapeHandle},
+    world::{CollisionGroups, GeometricQueryType},
+};
+
+use nalgebra::Isometry2;
+
 use std::{
     fs::File,
     path::Path,
@@ -16,7 +23,13 @@ pub mod tile;
 pub use self::point::MapPoint;
 pub use self::tile::{Tile, TileType};
 
-use crate::SkirmResult;
+use crate::{
+    SkirmResult,
+    game::TILE_COLLISION_GROUP,
+    CollisionWorld,
+    Vector2,
+    components::*,
+};
 
 pub const TILE_WIDTH: i32 = 32;
 pub const TILE_HEIGHT: i32 = 32;
@@ -33,7 +46,7 @@ pub struct SkirmMap {
 }
 
 impl SkirmMap {
-    pub fn load<P>(path: P) -> SkirmResult<Self>
+    pub fn load<P>(path: P, world: &mut specs::World) -> SkirmResult<Self>
         where P: AsRef<Path> + Debug,
     {
         let map_file = File::open(path)?;
@@ -43,10 +56,10 @@ impl SkirmMap {
         for (j, line) in buffer.lines().enumerate() {
             for (i, c) in line.unwrap().chars().enumerate() {
                 if c.to_ascii_char().unwrap() == AsciiChar::Hash {
-                    map.insert(MapPoint::new(i as i32, j as i32), Tile::new(Some(TileType::Ground)));
+                    create_map_entity(world, &mut map, i as i32, j as i32, Some(TileType::Ground));
                 }
                 else {
-                    map.insert(MapPoint::new(i as i32, j as i32), Tile::new(None));
+                    create_map_entity(world, &mut map, i as i32, j as i32, None);
                 }
             }
         }
@@ -127,4 +140,42 @@ pub fn tile_distance(p1: &MapPoint, p2: MapPoint) -> u16 {
 
 pub fn pixel_distance(p1: (i32, i32), p2: (i32, i32)) -> u16 {
     (((p1.0 - p2.0).pow(2) + (p1.1 - p2.1).pow(2)) as f32).sqrt() as u16
+}
+
+fn create_map_entity(world: &mut specs::World, map: &mut HashMap<MapPoint, Tile>, x: i32, y: i32, tile: Option<TileType>) {
+    // Insert into the map for quick lookup
+    let point = MapPoint::new(x, y);
+    map.insert(point, Tile::new(tile));
+
+    if tile.is_some() {
+        let pixel = point.as_float_coord_tuple();
+        let ent = world.create_entity()
+            .with(PositionComp::new(pixel.0, pixel.1))
+            .with(SpriteComp::new(String::from("green_box")))
+            .build();
+
+        // Collision info
+        let shape = Cuboid::new(Vector2::new(12.0, 12.0));
+        let mut group = CollisionGroups::new();
+        group.set_membership(&[TILE_COLLISION_GROUP]);
+        group.set_blacklist(&[TILE_COLLISION_GROUP]);
+        let query_type = GeometricQueryType::Contacts(0.0, 0.0);
+
+        let collider = {
+            let mut collide_world = world.write_resource::<CollisionWorld>();
+            let handle = collide_world.add(
+                Isometry2::new(Vector2::new(0.0, -6.0), nalgebra::zero()),
+                ShapeHandle::new(shape.clone()),
+                group,
+                query_type,
+                ent,
+            );
+
+            CollideComp {
+                handle,
+            }
+        };
+
+        world.write::<CollideComp>().insert(ent, collider);
+    }
 }

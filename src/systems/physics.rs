@@ -1,9 +1,14 @@
-use specs::{FetchMut, System, WriteStorage, Join};
+use specs::{Fetch, FetchMut, System, WriteStorage, ReadStorage, Join};
 use nalgebra::Translation;
 use ggez::graphics;
 
-use crate::{CollisionWorld, Vector2, Point2};
-use crate::components::*;
+use crate::{
+    CollisionWorld,
+    Vector2,
+    Point2,
+    resources::DeltaTime,
+    components::*
+};
 
 pub struct PhysicsSys;
 impl<'a> System<'a> for PhysicsSys{
@@ -11,13 +16,18 @@ impl<'a> System<'a> for PhysicsSys{
         WriteStorage<'a, PositionComp>,
         WriteStorage<'a, PhysicsComp>,
         WriteStorage<'a, CollideComp>,
+        ReadStorage<'a, StateComp>,
         FetchMut<'a, CollisionWorld>,
+        Fetch<'a, DeltaTime>,
     );
 
-    fn run(&mut self, (mut pos, mut physics, mut collide, mut world): Self::SystemData) {
-        for (pos, p, c) in (&mut pos, &mut physics, &mut collide).join() {
+    fn run(&mut self, (mut pos, mut physics, mut collide, state, mut world, time): Self::SystemData) {
+        let dt = time.as_dt();
+        for (pos, p, s, c) in (&mut pos, &mut physics, &state, &mut collide).join() {
             // Apply gravity
-            p.acceleration += Vector2::new(0.0, 10.0);
+            if !s.is_on_ground() {
+                p.acceleration += Vector2::new(0.0, 10.0 * dt);
+            }
 
             // Update pos
             p.velocity += p.acceleration;
@@ -31,7 +41,6 @@ impl<'a> System<'a> for PhysicsSys{
             world.set_position(c.handle, new_position);
 
             let position = ggez_collision_object_pos(&world, c);
-            println!("{:?}", position);
             pos.x = position.x;
             pos.y = position.y;
         }
