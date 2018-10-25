@@ -22,11 +22,11 @@ impl StateComp {
         }
     }
 
-    pub fn is_moving_vertical(&self) -> {
+    pub fn is_moving_vertical(&self) -> bool {
         self.move_action.up.state || self.move_action.down.state
     }
 
-    pub fn is_moving_horizontal(&self) -> {
+    pub fn is_moving_horizontal(&self) -> bool {
         self.move_action.left.state || self.move_action.right.state
     }
 

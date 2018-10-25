@@ -10,7 +10,7 @@ mod stats;
 // mod turn;
 
 pub use self::{
-    state::{StateComp, Move},
+    state::StateComp,
     equipment::EquipmentComp,
     position::PositionComp,
     render::{SpriteComp, AnimComp, WHITE, BLACK},

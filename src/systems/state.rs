@@ -37,24 +37,22 @@ impl<'a> System<'a> for StateSys {
         let dt = time.as_dt();
 
         for (a, _p, n, y) in (&mut action, &mut pos, &mut anim, &mut physics).join() {
+            if a.move_action.is_any_unhandled() {
+            }
+
             if a.is_moving() {
                 info!("Ent moving {:?}", a.move_action);
-                if a.move_action.dirty {
-                    n.change_id(String::from("move"), true);
-                    a.move_action.dirty = false;
-                }
-
                 let speed = 100.0 * dt;
-                if !a.move_action.up.handled && a.move_action.up.state {
+                if a.move_action.up.state {
                     y.velocity = Vector2::new(0.0, -speed);
                 }
-                if a.move_action.down {
+                if a.move_action.down.state {
                     y.velocity = Vector2::new(0.0, speed);
                 }
-                if a.move_action.left {
+                if a.move_action.left.state {
                     y.velocity = Vector2::new(-speed, 0.0);
                 }
-                if a.move_action.right {
+                if a.move_action.right.state {
                     y.velocity = Vector2::new(speed, 0.0);
                 }
             } else {
